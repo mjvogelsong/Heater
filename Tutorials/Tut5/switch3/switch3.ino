@@ -1,13 +1,18 @@
-/*
+/* Tutorial 5 - switch3
 Lab Group 7
-Tutorial 5
+
+Code From:
+Arduino Tutorials
+Episode 2
+Switch3 Program (debounced)
+Written by: Jeremy Blum
 */
 
 int switchPin = 8;
-int ledPin = 11;
+int ledPin = 13;
 boolean lastButton = LOW;
-int ledLevel = 0;
 boolean currentButton = LOW;
+boolean ledOn = false;
 
 void setup()
 {
@@ -29,12 +34,12 @@ boolean debounce(boolean last)
 void loop()
 {
   currentButton = debounce(lastButton);
-  if (currentButton == HIGH && lastButton == LOW)
+  if (lastButton == LOW && currentButton == HIGH)
   {
-    ledLevel = ledLevel + 51;
+    ledOn = !ledOn;
   }
   lastButton = currentButton;
-  if (ledLevel > 255) ledLevel = 0;
-  analogWrite(ledPin, ledLevel);
-}
+  
+  digitalWrite(ledPin, ledOn);
 
+}

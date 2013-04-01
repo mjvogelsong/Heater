@@ -1,13 +1,17 @@
-/*
+/* Tutorial 4 - demo
 Lab Group 7
-Tutorial 4
+
+Code From:
+Jeremy's First Program
+It's awesome!
+www.jeremyblum.com
 */
 
 int ledPin = 13;
 
 void setup()
 {
-  // initialize output pins
+  //initialize pins as outputs
   pinMode(ledPin, OUTPUT);
 }
 

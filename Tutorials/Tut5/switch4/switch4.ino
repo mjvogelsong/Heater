@@ -1,13 +1,18 @@
-/*
+/* Tutorial 5 - switch4
 Lab Group 7
-Tutorial 5
+
+Code From:
+Arduino Tutorials
+Episode 2
+Switch4 Program (pwm)
+Written by: Jeremy Blum
 */
 
 int switchPin = 8;
 int ledPin = 11;
 boolean lastButton = LOW;
-int ledLevel = 0;
 boolean currentButton = LOW;
+int ledLevel = 0;
 
 void setup()
 {
@@ -29,12 +34,13 @@ boolean debounce(boolean last)
 void loop()
 {
   currentButton = debounce(lastButton);
-  if (currentButton == HIGH && lastButton == LOW)
+  if (lastButton == LOW && currentButton == HIGH)
   {
     ledLevel = ledLevel + 51;
   }
   lastButton = currentButton;
+  
   if (ledLevel > 255) ledLevel = 0;
   analogWrite(ledPin, ledLevel);
-}
 
+}
