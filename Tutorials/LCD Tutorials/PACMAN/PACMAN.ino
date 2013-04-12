@@ -93,10 +93,20 @@ void pac0() { //array of byes 5x7 - setting to 1 turns on (comma between each by
   B10101,
   B00000,
 };
+byte pacclear[8] = {
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+};
 lcd.createChar(0,pacman0);
 lcd.createChar(1,food);
 lcd.createChar(2,cherry);
 lcd.createChar(3,ghost0);
+lcd.createChar(4,pacclear);
 lcd.setCursor(1,2);
 lcd.write(byte(0));
 lcd.setCursor(2,2);
@@ -109,6 +119,8 @@ lcd.setCursor(5,2);
 lcd.write(byte(1));
 lcd.setCursor(6,2);
 lcd.write(byte(2));
+lcd.setCursor(7,2);
+lcd.write(byte(4));
 lcd.setCursor(8,2);
 lcd.write(byte(3));
 }
