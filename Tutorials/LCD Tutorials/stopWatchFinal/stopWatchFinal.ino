@@ -190,17 +190,25 @@ void loop()
   but=read_LCD_buttons();
   }
   if (but==4){
+    while (but == 4){
+      but = read_LCD_buttons();
+    }
+    boolean flag = false;
     while (time[0] !=0 || time[1] !=0 || time[3] !=0 || time[4] !=0){
-       but=0;
       long timet=millis();
       while (millis()-timet < 1000){
-        but=0;
         but = read_LCD_buttons();
         if (but==4){
+          while (but == 4){
+            but = read_LCD_buttons();
+          }
+          flag = !flag;
+        }
+        if (flag == true){
+          Serial.println("break");
           break;
         }
         delay(50);
-        but=0;
       }
       if (millis()-timet>=1000){
         if (time[4] != 0){
