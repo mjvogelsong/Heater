@@ -176,6 +176,17 @@ void loop()
     //}
     
   //}
+
+void loop() {
+  if (xx -xx == 0) {
+  // Turn off the display:
+  lcd.noDisplay();
+  delay(3000);
+   // Turn on the display:
+  lcd.display();
+  delay(3000);
+  }
+}
   
   
 }
