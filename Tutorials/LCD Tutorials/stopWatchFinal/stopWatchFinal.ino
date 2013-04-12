@@ -224,22 +224,5 @@ void loop()
       }
   }
     
-<<<<<<< HEAD
-=======
-  //}
-
-void loop() {
-  if (xx -xx == 0) {
-  // Turn off the display:
-  lcd.noDisplay();
-  delay(3000);
-   // Turn on the display:
-  lcd.display();
-  delay(3000);
-  }
-}
-  
-  
->>>>>>> 6fadf87d7248eb4b16138111af51787bf6b5980d
 }
 
