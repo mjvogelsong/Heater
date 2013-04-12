@@ -1,5 +1,3 @@
-//Sample using LiquidCrystal library
-#include <LiquidCrystal.h>
 /*
 *******************************************************
 stopWatch.ino
@@ -11,29 +9,33 @@ This program will test the LCD panel and the buttons
 ********************************************************
 */
 
+//Sample using LiquidCrystal library
+#include <LiquidCrystal.h>
+
 // select the pins used on the LCD panel
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
-// define some values used by the panel and buttons
-int lcd_key = 0;
-int adc_key_in = 0;
-boolean SELECTED = false;
-int cRow = 1;
-int cCol = 0;
-int time[] = {0,0,0,0,0};
+// Initialize values
+int     lcd_key    = 0;
+int     adc_key_in = 0;
+boolean SELECTED   = false;
+int     cRow       = 1;
+int     cCol       = 0;
+int     time[]     = {0,0,0,0,0};
 
-#define btnRIGHT 0
-#define btnUP 1
-#define btnDOWN 2
-#define btnLEFT 3
-#define btnSELECT 4
-#define btnNONE 5
-#define V1 50
-#define V2 148
-#define V3 305
-#define V4 459
-#define V5 689
-#define VNONE 1000
+// define constants so that mapped values are easier to understand
+#define btnRIGHT   0
+#define btnUP      1
+#define btnDOWN    2
+#define btnLEFT    3
+#define btnSELECT  4
+#define btnNONE    5
+#define V1         50
+#define V2         148
+#define V3         305
+#define V4         459
+#define V5         689
+#define VNONE      1000
 
 int read_LCD_buttons()
 {
@@ -129,32 +131,36 @@ boolean buttonAction(int lcd_key)
   
 }
 
-void setup()
+void printTime(int timeArray[], int col, int row)
 {
-  lcd.begin(16, 2); // start the library
-
-  lcd.print("Enter Time:");
-
-  lcd.setCursor(cCol,cRow);
-
+  lcd.setCursor(col, row);
   lcd.print(time[0]);
   lcd.print(time[1]);
   lcd.print(":");
   lcd.print(time[3]);
   lcd.print(time[4]);
+}
+
+void setup()
+{
+  lcd.begin(16, 2); // start the library
+  lcd.home();
+  lcd.print("Enter Time:");
   
+  cRow = 1;
+  
+  printTime(time, cCol, cRow);
+
   lcd.setCursor(cCol,cRow);
   lcd.blink();
   
   Serial.begin(9600);
-  
-
 }
 
 void loop()
 {
-  Serial.print("Here");
-  SELECTED = false;
+  Serial.println("Starting loop");
+  
   while(SELECTED == false)
   {
     lcd_key = read_LCD_buttons(); // read the buttons
@@ -167,36 +173,34 @@ void loop()
     }
   }
   
-  Serial.print("passed loop");
-  
-  int minutes = 10*time[0] + time[1];
-  int seconds = 10*time[3] + time[4];
-  
-  long totalMillis = 1000*(60*minutes + seconds);
-  long startTime = millis();
-  long current = totalMillis;
+  Serial.println("Time Control Done");
   
   lcd.clear();
-  lcd.home();
-  lcd.print(time[0]);
-  lcd.print(time[1]);
-  lcd.print(":");
-  lcd.print(time[3]);
-  lcd.print(time[4]);
+  cCol = 0;
+  cRow = 0;
+  
+  printTime(time, cCol, cRow);
 
-  int but=read_LCD_buttons();
-  while (but!=4){
-  delay(50);
-  but=read_LCD_buttons();
+  int but = read_LCD_buttons();
+  
+  while (but!=4)
+  {
+    delay(50);
+    but = read_LCD_buttons();
   }
-  if (but==4){
+  
+  if (but==4)
+  {
+    lcd.noBlink();
     while (but == 4){
       but = read_LCD_buttons();
     }
     boolean flag = false;
+    
     while (time[0] !=0 || time[1] !=0 || time[3] !=0 || time[4] !=0){
-      long timet=millis();
-      while (millis()-timet < 1000){
+      long timeT = millis();
+      
+      while ((millis() - timeT) < 1000){
         but = read_LCD_buttons();
         if (but==4){
           while (but == 4){
@@ -210,7 +214,8 @@ void loop()
         }
         delay(50);
       }
-      if (millis()-timet>=1000){
+      
+      if ((millis() - timeT)>=1000){
         if (time[4] != 0){
           time[4]=time[4]-1;
         }
@@ -228,21 +233,16 @@ void loop()
           time[1]=9;
         }
         lcd.clear();
-        lcd.print(time[0]);
-        lcd.print(time[1]);
-        lcd.print(":");
-        lcd.print(time[3]);
-        lcd.print(time[4]);
+        printTime(time, cCol, cRow);
       }
     }
       // Turn off the display:
-      for (int i = 1;i<5;i++)
-      {
-      lcd.noDisplay();
-      delay(500);
-       // Turn on the display:
-      lcd.display();
-      delay(500);
+      for (int i = 1;i<5;i++){
+        lcd.noDisplay();
+        delay(500);
+        // Turn on the display:
+        lcd.display();
+        delay(500);
       }
   }
     
