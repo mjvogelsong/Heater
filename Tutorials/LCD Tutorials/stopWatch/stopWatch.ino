@@ -100,7 +100,8 @@ boolean buttonAction(int lcd_key)
     case btnSELECT:
     {
       //Instructions for what to do on SELECT button press
-      boolean _select = true;
+      _select = true;
+      Serial.println("selected");
       break;
     }
     case btnNONE:
@@ -139,14 +140,16 @@ void setup()
 void loop()
 {
   Serial.print("Here");
-  while (SELECTED == false)
+  
+  while(SELECTED == false)
   {
     lcd_key = read_LCD_buttons(); // read the buttons
     if (lcd_key != btnNONE)
     {
       SELECTED = buttonAction(lcd_key);
       Serial.print(lcd_key);
-      delay(100);
+      Serial.println(SELECTED);
+      delay(400);
     }
   }
   
