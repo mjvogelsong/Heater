@@ -18,6 +18,9 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 int lcd_key = 0;
 int adc_key_in = 0;
 boolean SELECTED = false;
+int cRow = 1;
+int cCol = 0;
+int time[] = {0,0,0,0,0};
 
 #define btnRIGHT 0
 #define btnUP 1
@@ -26,16 +29,16 @@ boolean SELECTED = false;
 #define btnSELECT 4
 #define btnNONE 5
 #define V1 50
-#define V2 195
-#define V3 380
-#define V4 555
-#define V5 790
+#define V2 148
+#define V3 305
+#define V4 459
+#define V5 689
 #define VNONE 1000
 
 int read_LCD_buttons()
 {
   adc_key_in = analogRead(0); // read the value from the sensor
-  // my buttons when read are centered at these valies: 0, 144, 329, 504, 741
+  // my buttons when read are centered at these valies: 0, 98, 255, 409, 639
   // we add approx 50 to those values and check to see if we are close
   if (adc_key_in > VNONE) return btnNONE; // We make this the 1st option for speed reasons s
   if (adc_key_in < V1) return btnRIGHT;
@@ -46,7 +49,7 @@ int read_LCD_buttons()
   return btnNONE; // when all others fail, return this...
 }
 
-boolean buttonAction(lcd_key)
+boolean buttonAction(int lcd_key)
 {
   boolean _select = false;
   
@@ -55,40 +58,42 @@ boolean buttonAction(lcd_key)
     case btnRIGHT:
     {
       //Instructions for what to do on RIGHT button press
-      cCol = (cCol + 1) % 5;
+      cCol = abs((cCol + 1) % 5);
       if (cCol == 2)
       {
         cCol = 3;
       }
+      lcd.setCursor(cCol,cRow);
       break;
     }
 
       case btnLEFT:
     {
       //Instructions for what to do on LEFT button press
-      cCol = (cCol - 1) % 5;
+      cCol = abs((cCol - 1) % 5);
       if (cCol == 2)
       {
         cCol = 1;
       }
+      lcd.setCursor(cCol,cRow);
       break;
     }
 
     case btnUP:
     {
       //Instructions for what to do on UP button press
-      time[cCol] = (time[cCol] + 1) % 10;
+      time[cCol] = abs((time[cCol] + 1) % 10);
       lcd.print(time[cCol]);
-      lcd.setCursor(cRow,cCol);
+      lcd.setCursor(cCol,cRow);
       break;
     }
 
     case btnDOWN:
     {
       //Instructions for what to do on DOWN button press
-      time[cCol] = (time[cCol] - 1) % 10;
+      time[cCol] = abs((time[cCol] - 1) % 10);
       lcd.print(time[cCol]);
-      lcd.setCursor(cRow,cCol);
+      lcd.setCursor(cCol,cRow);
       break;
     }
     
@@ -105,7 +110,7 @@ boolean buttonAction(lcd_key)
     }
   }
   
-  return _select
+  return _select;
   
 }
 
@@ -115,12 +120,7 @@ void setup()
 
   lcd.print("Enter Time:");
 
-  int cRow = 1;
-  int cCol = 0;
-
-  lcd.setCursor(cRow,cCol);
-
-  int time = {0,0,0,0,0}
+  lcd.setCursor(cCol,cRow);
 
   lcd.print(time[0]);
   lcd.print(time[1]);
@@ -128,35 +128,51 @@ void setup()
   lcd.print(time[3]);
   lcd.print(time[4]);
   
-  lcd.setCursor(cRow,cCol);
+  lcd.setCursor(cCol,cRow);
+  lcd.blink();
+  
+  Serial.begin(9600);
+  
 
 }
 
 void loop()
 {
-  lcd_key = read_LCD_buttons(); // read the buttons
-  
-  while (!SELECTED)
+  Serial.print("Here");
+  while (SELECTED == false)
   {
-    SELECTED = buttonAction(lcd_key);
+    lcd_key = read_LCD_buttons(); // read the buttons
+    if (lcd_key != btnNONE)
+    {
+      SELECTED = buttonAction(lcd_key);
+      Serial.print(lcd_key);
+      delay(100);
+    }
   }
+  
+  Serial.print("passed loop");
   
   int minutes = 10*time[0] + time[1];
   int seconds = 10*time[3] + time[4];
+  
+  long totalMillis = 1000*(60*minutes + seconds);
+  long startTime = millis();
+  long current = totalMillis;
   
   lcd.clear();
   lcd.home();
   lcd.print(minutes);
   lcd.print(":");
-  lcd.print(
+  lcd.print(seconds);
   
-  while (minutes > 0) || (seconds > 0)
-  {
-    while (millis() - startMillis)
-    {
+  //while ((minutes > 0) || (seconds > 0))
+  //{
+    //while (millis() - startMillis)
+    //{
       
-    }
-  }
+    //}
+    
+  //}
   
   
 }
