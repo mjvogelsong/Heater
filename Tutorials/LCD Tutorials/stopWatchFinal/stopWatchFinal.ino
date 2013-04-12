@@ -226,55 +226,52 @@ void loop(){
   while(SELECTED == false){ // any button (or no buttons) other than "select"
     inputTime();
   }
-  DEBUG_PRINT("Time Control Done");
   
+  DEBUG_PRINT("Time Control Done");
   lcd.clear();
   cCol = 0;
   cRow = 0;
-  
   printTime(time, cCol, cRow);
 
   int but = read_LCD_buttons(); // initialize but
-  
   while (but != btnSELECT){  // don't start timer until user hits "select"
     delay(50);
     but = read_LCD_buttons();
   }
+
+  lcd.noBlink(); // no longer need cursor
+  while (but == btnSELECT){  // read until button is unpressed
+    but = read_LCD_buttons();
+  }
   
-  if (but == btnSELECT){
-    lcd.noBlink(); // no longer need cursor
-    while (but == btnSELECT){  // read until button is unpressed
+  boolean flagSelect = false; // initialize flagSelect
+  
+  while (time[0] !=0 || time[1] !=0 || time[3] !=0 || time[4] !=0){ // timer non-zero
+    long timeT = millis();  // get current millis()
+    
+    while ((millis() - timeT) < 1000){ // second has not elapsed, so keep looking for "select"
       but = read_LCD_buttons();
+      if (but == btnSELECT){ // "select" pressed
+        while (but == btnSELECT){ // wait until "select" is unpressed
+          but = read_LCD_buttons();
+        }
+        flagSelect = !flagSelect; // flag the "select" (bi-directional so 
+                                  //    that system can resume on 2nd "select"
+      }
+      if (flagSelect == true){
+        DEBUG_PRINT("break");
+        break;                  // breaking while loop
+      }
+      delay(50);
     }
     
-    boolean flagSelect = false; // initialize flagSelect
-    
-    while (time[0] !=0 || time[1] !=0 || time[3] !=0 || time[4] !=0){ // timer non-zero
-      long timeT = millis();  // get current millis()
-      
-      while ((millis() - timeT) < 1000){ // second has not elapsed, so keep looking for "select"
-        but = read_LCD_buttons();
-        if (but == btnSELECT){ // "select" pressed
-          while (but == btnSELECT){ // wait until "select" is unpressed
-            but = read_LCD_buttons();
-          }
-          flagSelect = !flagSelect; // flag the "select" (bi-directional so 
-                                    //    that system can resume on 2nd "select"
-        }
-        if (flagSelect == true){
-          DEBUG_PRINT("break");
-          break;                  // breaking while loop
-        }
-        delay(50);
-      }
-      
-      if ((millis() - timeT)>=1000){ // second has elapsed
-        updateTime();
-        lcd.clear();
-        printTime(time, cCol, cRow);
-      }
+    if ((millis() - timeT)>=1000){ // second has elapsed
+      updateTime();
+      lcd.clear();
+      printTime(time, cCol, cRow);
     }
-      flashDone(); // reached 00:00
-  }  
+  }
+    flashDone(); // reached 00:00
+
 }
 
