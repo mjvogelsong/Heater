@@ -141,6 +141,36 @@ void printTime(int timeArray[], int col, int row)
   lcd.print(time[4]);
 }
 
+void updateTime(){
+  if (time[4] != 0){
+    time[4]=time[4]-1;
+  }
+  else if (time[3] != 0){
+    time[3]=time[3]-1;
+    time[4]=9;
+  }
+  else if (time[1] != 0){
+    time[1]=time[1]-1;
+    time[3]=5;
+    time[4]=9;
+  }
+  else {
+    time[0]=time[0]-1;
+    time[1]=9;
+  }
+}
+
+void flashDone(){
+// Turn off the display:
+  for (int i = 1;i<5;i++){
+    lcd.noDisplay();
+    delay(500);
+    // Turn on the display:
+    lcd.display();
+    delay(500);
+  }
+}
+
 void setup()
 {
   lcd.begin(16, 2); // start the library
@@ -216,34 +246,12 @@ void loop()
       }
       
       if ((millis() - timeT)>=1000){
-        if (time[4] != 0){
-          time[4]=time[4]-1;
-        }
-        else if (time[3] != 0){
-          time[3]=time[3]-1;
-          time[4]=9;
-        }
-        else if (time[1] != 0){
-          time[1]=time[1]-1;
-          time[3]=5;
-          time[4]=9;
-        }
-        else {
-          time[0]=time[0]-1;
-          time[1]=9;
-        }
+        updateTime();
         lcd.clear();
         printTime(time, cCol, cRow);
       }
     }
-      // Turn off the display:
-      for (int i = 1;i<5;i++){
-        lcd.noDisplay();
-        delay(500);
-        // Turn on the display:
-        lcd.display();
-        delay(500);
-      }
+      flashDone();
   }
     
 }
