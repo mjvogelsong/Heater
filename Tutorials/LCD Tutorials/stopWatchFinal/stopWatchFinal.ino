@@ -70,10 +70,17 @@ boolean buttonAction(int lcd_key)
       case btnLEFT:
     {
       //Instructions for what to do on LEFT button press
-      cCol = abs((cCol - 1) % 5);
+      Serial.print("before:");
+      Serial.print(cCol);
+      cCol = (cCol - 1) % 5;
+      Serial.println(cCol);
       if (cCol == 2)
       {
         cCol = 1;
+      }
+      else if (cCol == -1)
+      {
+        cCol = 4;
       }
       lcd.setCursor(cCol,cRow);
       break;
@@ -91,7 +98,14 @@ boolean buttonAction(int lcd_key)
     case btnDOWN:
     {
       //Instructions for what to do on DOWN button press
+      if (time[cCol] == 0)
+      {
+        time[cCol] = 9;
+      }
+      else
+      {
       time[cCol] = abs((time[cCol] - 1) % 10);
+      }
       lcd.print(time[cCol]);
       lcd.setCursor(cCol,cRow);
       break;
