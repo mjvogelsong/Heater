@@ -140,7 +140,7 @@ void setup()
 void loop()
 {
   Serial.print("Here");
-  
+  SELECTED = false;
   while(SELECTED == false)
   {
     lcd_key = read_LCD_buttons(); // read the buttons
@@ -164,18 +164,65 @@ void loop()
   
   lcd.clear();
   lcd.home();
-  lcd.print(minutes);
+  lcd.print(time[0]);
+  lcd.print(time[1]);
   lcd.print(":");
-  lcd.print(seconds);
-  
-  //while ((minutes > 0) || (seconds > 0))
-  //{
-    //while (millis() - startMillis)
-    //{
-      
-    //}
+  lcd.print(time[3]);
+  lcd.print(time[4]);
+
+  int but=read_LCD_buttons();
+  while (but!=4){
+  delay(50);
+  but=read_LCD_buttons();
+  }
+  if (but==4){
+    while (time[0] !=0 || time[1] !=0 || time[3] !=0 || time[4] !=0){
+       but=0;
+      long timet=millis();
+      while (millis()-timet < 1000){
+        but=0;
+        but = read_LCD_buttons();
+        if (but==4){
+          break;
+        }
+        delay(50);
+        but=0;
+      }
+      if (millis()-timet>=1000){
+        if (time[4] != 0){
+          time[4]=time[4]-1;
+        }
+        else if (time[3] != 0){
+          time[3]=time[3]-1;
+          time[4]=9;
+        }
+        else if (time[1] != 0){
+          time[1]=time[1]-1;
+          time[3]=5;
+          time[4]=9;
+        }
+        else {
+          time[0]=time[0]-1;
+          time[1]=9;
+        }
+        lcd.clear();
+        lcd.print(time[0]);
+        lcd.print(time[1]);
+        lcd.print(":");
+        lcd.print(time[3]);
+        lcd.print(time[4]);
+      }
+    }
+      // Turn off the display:
+      for (int i = 1;i<5;i++)
+      {
+      lcd.noDisplay();
+      delay(500);
+       // Turn on the display:
+      lcd.display();
+      delay(500);
+      }
+  }
     
-  //}
-  
-  
 }
+
