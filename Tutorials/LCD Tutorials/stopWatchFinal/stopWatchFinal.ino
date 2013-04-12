@@ -37,8 +37,7 @@ int     time[]     = {0,0,0,0,0};
 #define V5         689
 #define VNONE      1000
 
-int read_LCD_buttons()
-{
+int read_LCD_buttons(){
   adc_key_in = analogRead(0); // read the value from the sensor
   // my buttons when read are centered at these valies: 0, 98, 255, 409, 639
   // we add approx 50 to those values and check to see if we are close
@@ -51,45 +50,37 @@ int read_LCD_buttons()
   return btnNONE; // when all others fail, return this...
 }
 
-boolean buttonAction(int lcd_key)
-{
+boolean buttonAction(int lcd_key){
   boolean _select = false;
   
-  switch (lcd_key) // depending on which button was pushed, we perform an action
-  {
-    case btnRIGHT:
-    {
+  switch (lcd_key) {// depending on which button was pushed, we perform an action
+    case btnRIGHT: {
       //Instructions for what to do on RIGHT button press
       cCol = abs((cCol + 1) % 5);
-      if (cCol == 2)
-      {
+      if (cCol == 2) {
         cCol = 3;
       }
       lcd.setCursor(cCol,cRow);
       break;
     }
 
-      case btnLEFT:
-    {
+      case btnLEFT: {
       //Instructions for what to do on LEFT button press
       Serial.print("before:");
       Serial.print(cCol);
       cCol = (cCol - 1) % 5;
       Serial.println(cCol);
-      if (cCol == 2)
-      {
+      if (cCol == 2) {
         cCol = 1;
       }
-      else if (cCol == -1)
-      {
+      else if (cCol == -1) {
         cCol = 4;
       }
       lcd.setCursor(cCol,cRow);
       break;
     }
 
-    case btnUP:
-    {
+    case btnUP: {
       //Instructions for what to do on UP button press
       time[cCol] = abs((time[cCol] + 1) % 10);
       lcd.print(time[cCol]);
@@ -97,15 +88,12 @@ boolean buttonAction(int lcd_key)
       break;
     }
 
-    case btnDOWN:
-    {
+    case btnDOWN: {
       //Instructions for what to do on DOWN button press
-      if (time[cCol] == 0)
-      {
+      if (time[cCol] == 0){
         time[cCol] = 9;
       }
-      else
-      {
+      else {
       time[cCol] = abs((time[cCol] - 1) % 10);
       }
       lcd.print(time[cCol]);
@@ -113,15 +101,13 @@ boolean buttonAction(int lcd_key)
       break;
     }
     
-    case btnSELECT:
-    {
+    case btnSELECT:{
       //Instructions for what to do on SELECT button press
       _select = true;
       Serial.println("selected");
       break;
     }
-    case btnNONE:
-    {
+    case btnNONE:{
       //Instructions for what to do if no button is pressed.
       break;
     }
@@ -131,8 +117,7 @@ boolean buttonAction(int lcd_key)
   
 }
 
-void printTime(int timeArray[], int col, int row)
-{
+void printTime(int timeArray[], int col, int row){
   lcd.setCursor(col, row);
   lcd.print(time[0]);
   lcd.print(time[1]);
@@ -171,8 +156,7 @@ void flashDone(){
   }
 }
 
-void setup()
-{
+void setup(){
   lcd.begin(16, 2); // start the library
   lcd.home();
   lcd.print("Enter Time:");
@@ -187,15 +171,12 @@ void setup()
   Serial.begin(9600);
 }
 
-void loop()
-{
+void loop(){
   Serial.println("Starting loop");
   
-  while(SELECTED == false)
-  {
+  while(SELECTED == false){
     lcd_key = read_LCD_buttons(); // read the buttons
-    if (lcd_key != btnNONE)
-    {
+    if (lcd_key != btnNONE){
       SELECTED = buttonAction(lcd_key);
       Serial.print(lcd_key);
       Serial.println(SELECTED);
@@ -213,14 +194,12 @@ void loop()
 
   int but = read_LCD_buttons();
   
-  while (but!=4)
-  {
+  while (but!=4){
     delay(50);
     but = read_LCD_buttons();
   }
   
-  if (but==4)
-  {
+  if (but==4){
     lcd.noBlink();
     while (but == 4){
       but = read_LCD_buttons();
@@ -252,7 +231,6 @@ void loop()
       }
     }
       flashDone();
-  }
-    
+  }  
 }
 
