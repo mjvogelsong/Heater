@@ -78,9 +78,39 @@ void loop()
   }
   controlHeater();
   {
-    while (timeRemaining && !error)
+    while ((stageCounter <= maxStage) && !error)
     {
-      
+      calculateStageInfo();
+      while (secondCounter <= maxSeconds)
+      {
+        loopBegin = millis();
+        getCurrentStats();
+        printCurrentStats();
+        getModelTemp();
+        controlHeater();
+        checkUnsafe();
+        secondCounter = secondCounter + 1;
+        delay(1000 - (millis() - loopBegin));
+      }
+      stageCounter = stageCounter + 1;
+      checkError();
     }
   }
+  endReport()
+  {
+    if (error)
+    {
+      printError();
+    }
+    else
+    {
+      printDone();
+      printSimpleResults();
+      if (askExportStats())
+      {
+        exportStats();
+      }
+    }
+  }
+  finish();
 }
