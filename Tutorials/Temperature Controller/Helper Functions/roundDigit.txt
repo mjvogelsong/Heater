@@ -37,7 +37,7 @@ Other Notes:
 
 
 
-float roundDigit(float num, int digit, int base)
+float roundDigit(float num, int digit)
 {
   float factor = num*(base^(-1*digit));
   num = round(num*factor);
