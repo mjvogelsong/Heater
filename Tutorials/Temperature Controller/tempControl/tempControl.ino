@@ -34,11 +34,14 @@ LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 // ~~~~~~~~~~~~~~~ Setup ~~~~~~~~~~~~~~~~~
 void setup()
 {
-  
+  Serial.begin(9600);
 }
 
 // ~~~~~~~~~~~~~~~ Main Loop ~~~~~~~~~~~~~~~~~
 void loop()
 {
-  
+  askForSetPoint();
+  getCurrentTemp();
+  updateHeater();
+  delay(interval);
 }
