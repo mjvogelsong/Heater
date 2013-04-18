@@ -37,7 +37,7 @@ Other Notes:
 
 */const byte READ_PIN = 1;
 
-float Volt2Temp( byte readPin )
+float volt2Temp( byte readPin )
 {
 	int sensorValue = analogRead(readPin); 
 	return sensorValue/204.6 *200; // convert analog readings to temperature

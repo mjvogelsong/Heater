@@ -218,7 +218,7 @@ void loop()
 	danger = 0;
 	while ( danger == 0 )
 	{
-		currentTemp = Volt2Temp(READ_PIN);
+		currentTemp = volt2Temp(READ_PIN);
 		danger = checkLimits(currentTemp, 0, 300);
 		updateHeater(currentTemp, setPoint, HEATER_PIN);
 		if ( danger == 0 )
