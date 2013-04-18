@@ -1,45 +1,43 @@
 /* 
 
 Method:
-	float roundDigit(float num, int digit)
+	returnType methodName(type1 param1, ...)
 ======================================================
 Author:
 	Michael Vogelsong
-	4/12/13
+	4/17/13
 ======================================================
 Library Dependencies:
-	NONE
+	#include <libraryName.h>
 ======================================================
 Function: 
-	rounds num on a particular digit
+	function description
 ======================================================
 Parameters:    
-	num: (float) number to be rounded
-	digit: (int) desired least significant digit (decimal)
-		e.g. If we want to round to the nearest hundredth in decimal,
-			we use "digit = -2" because 10^(-2) == 1/100;
-	base: (int) base
-		e.g 2 (bin), 10 (dec), 16 (hex), etc.
+	param1: (type1) description of variable
+		e.g. example explanation
+	param2: ...
+	...
 ======================================================
 Returns:
-	(float) rounded number
+	(returnType) returned value description
 ======================================================
 Calls:
-	NONE
+	what methods does it call?
 ======================================================
 Called by:
-	void displayTemp(float currentTemp, int setPoint)
+	what methods/programs call this method?
 ======================================================
 Other Notes:
 	NONE
 
 */
 
+const byte HEATER_PIN = 13;
+boolean heaterStatus = LOW;
 
-
-float roundDigit(float num, int digit)
+// Quick description
+void updateHeater( float current, byte setPoint, byte heaterPin )
 {
-  float factor = num*(base^(-1*digit));
-  num = round(num*factor);
-  return (num/factor);
+	digitalWrite(heaterPin, ( setPoint > current ));
 }

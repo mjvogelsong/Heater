@@ -38,8 +38,10 @@ void displayTemp(float currentTemp, int setPoint)
 {
   lcd.clear();
   lcd.setCursor(0,0);
-  displayCurrentTemp = roundDigit(currentTemp,-1);
-  lcd.print("Current:", displayCurrentTemp);
-  lcd.setCursor(1,0);
-  lcd.print("SetPoint:", setPoint);
+  int displayCurrentTemp = round(currentTemp);
+  lcd.print("Current:");
+  lcd.print(displayCurrentTemp);
+  lcd.setCursor(0,1);
+  lcd.print("SetPoint:");
+  lcd.print(setPoint);
 }

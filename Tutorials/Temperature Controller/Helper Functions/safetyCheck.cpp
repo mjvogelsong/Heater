@@ -1,7 +1,7 @@
 /* 
 
 Method:
-	void tempResponse(int TempValue, int TempMin, int TempMax)
+	void tempResponse(int tempValue, int tempMin, int tempMax)
 ======================================================
 Author:
 	Khanh Bui
@@ -18,10 +18,10 @@ Function:
 ======================================================
 Parameters: 
         
-	TempValue: (int) This is the temperature read from the Arduino
+	tempValue: (int) This is the temperature read from the Arduino
 		e.g. Arduino code converts voltage to a temperature and back
-        TempMin: (int) This is a constant that is set as the lower value of the range
-        TempMax: (int) This is a constant that is set as the max value of the range
+        tempMin: (int) This is a constant that is set as the lower value of the range
+        tempMax: (int) This is a constant that is set as the max value of the range
 
 ======================================================
 Returns:
@@ -38,34 +38,36 @@ NOTES:
         if automatic
 */
 
-// ********* Main **************
+const int CHECK_TIME = 500;
 
-void tempResponse(byte TempValue, byte TempMin, byte TempMax) 
+// ********* Main **************
+// Deprecated
+void safetyCheck(byte tempValue, byte tempMin, byte tempMax) 
 {
-	byte relativeTemp = checkLimits(TempValue, TempMin, TempMax); // 
+	byte relativeTemp = checkLimits(tempValue, tempMin, tempMax); 
 	if	(relativeTemp != 0)	displayWarning(relativeTemp);
 }
 
 //********** Helpers ***********	
 
-byte checkLimits(byte TempValue, byte TempMin, byte TempMax)
+byte checkLimits(float tempValue, int tempMin, int tempMax)
 {
-	if (TempValue >= TempMax) return 1;	// Arduino temp is greater than max temperature
-	else if (Temp <= TempMin) return 2;	// Arduino temp is lower than min temperature
-	else return 0;	// Arduino temp is within range
+	if (tempValue >= tempMax) return 1;	// Arduino temp is greater than max temperature
+	else if (tempValue <= tempMin) return 2; // Arduino temp is lower than min temperature
+	else return 0; // Arduino temp is within range
 }
 	
-void displayWarning(byte typeError)	
+void displayWarning(byte typeError)	// TODO: single printWarning function
 {	
 	if (typeError == 1)	// Arduino temp is greater than max temperature
-	{  			
+	{			
 		lcd.clear();
 		lcd.setCursor(0,0);
 		lcd.print("TOO HIGH!");
 		lcd.setCursor(0,1);
 		lcd.print('Turn off heat');
 	}
-	else	// Arduino temp is lower than min temperature
+	else	// typeError == 2: Arduino temp is lower than min temperature
 	{
 		lcd.clear();
 		lcd.setCursor(0,0);

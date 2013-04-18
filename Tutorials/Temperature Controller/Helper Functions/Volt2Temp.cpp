@@ -35,21 +35,10 @@ Other Notes:
 	with the potentiometer. May need to modify temperatures
 	that turn the heater on and off.
 
-*/
-
-
-
-void Volt2Temp (int Volt, int Heater)
-{
-int sensorValue = analogRead(Volt); 
-short Temp = sensorValue/204.6 *200; // convert analog readings to temperature
+*/const byte READ_PIN = 1;
 
-Serial.println(Temp);
-delay(1000);
-if (Temp >= 215) {
-digitalWrite(Heater, LOW); // turn heater off if temp too high
-  } else if (Temp < 150) {
-    digitalWrite(Heater, HIGH); // turn heater on if temp too low
-  }
-
+float Volt2Temp( byte readPin )
+{
+	int sensorValue = analogRead(readPin); 
+	return sensorValue/204.6 *200; // convert analog readings to temperature
 }
