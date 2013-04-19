@@ -164,7 +164,8 @@ void OvenControl::displayWarning( byte typeError ) // TODO: choose string to pri
 		lcd.setCursor(0,0);
 		lcd.print("TOO HIGH!");
 		lcd.setCursor(0,1);
-		lcd.print('Turn off heat');
+		lcd.print("Turning off heat");
+		digitalWrite(HEATER_PIN, LOW);
 	}
 	else // typeError == 2: current temp is less than lower limit
 	{
@@ -172,7 +173,8 @@ void OvenControl::displayWarning( byte typeError ) // TODO: choose string to pri
 		lcd.setCursor(0,0);
 		lcd.print("TOO LOW!");
 		lcd.setCursor(0,1);
-		lcd.print('Turn on heat');
+		lcd.print("Turning on heat");
+		digitalWrite(HEATER_PIN, HIGH);
 	}
 	for(int count = 0; count < 5; count++)
 	{	// Blink off and on

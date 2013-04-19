@@ -30,7 +30,7 @@ Checks for dangerously low or high temperatures, alerts user,
 // Select the pins used on the LCD panel
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 // Gets OvenControl functions
-OvenControl ovc();
+OvenControl ovc;
 
 // ~~~~~~~~~~~~~~~ Setup ~~~~~~~~~~~~~~~~~
 void setup()
@@ -42,17 +42,17 @@ void setup()
 // ~~~~~~~~~~~~~~~ Main Loop ~~~~~~~~~~~~~~~~~
 void loop()
 {
-	ovc.inputSetPoint(0, 255);
+	ovc.inputSetPoint();
 	ovc.danger = 0;
 	while ( ovc.danger == 0 )
 	{
-		ovc.currentTemp = ovc.volt2Temp(ovc.READ_PIN);
+		ovc.currentTemp = ovc.volt2Temp(READ_PIN);
 		ovc.danger = ovc.checkLimits(ovc.currentTemp, 0, 300);
-		ovc.updateHeater(ovc.currentTemp, ovc.setPoint, ovc.HEATER_PIN);
+		ovc.updateHeater(ovc.currentTemp, ovc.setPoint, HEATER_PIN);
 		if ( ovc.danger == 0 )
 		{
 			ovc.displayTemp(ovc.currentTemp, ovc.setPoint);
-			ovc.delay(ovc.CHECK_TIME);
+			delay(CHECK_TIME);
 		}
 	}
 	ovc.displayWarning(ovc.danger);
