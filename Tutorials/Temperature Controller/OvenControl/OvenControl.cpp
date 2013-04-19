@@ -126,10 +126,10 @@ boolean OvenControl::buttonTempAction( byte lcdKey, byte col,
 	return _select ; 
 }
 
-float OvenControl::volt2Temp( byte readPin )
+float OvenControl::volt2Temp( byte readPin ) // TODO: figure out thermocouple conversion
 {
-	int sensorValue = analogRead(readPin); 
-	return sensorValue/204.6 *200; // convert analog readings to temperature
+	int sensorValue = analogRead(readPin);
+	return map(sensorValue, 0, 1023, RANGE_LOW, RANGE_HIGH); // convert analog readings to temperature
 }
 
 byte OvenControl::checkLimits( float tempValue, int tempMin, int tempMax )

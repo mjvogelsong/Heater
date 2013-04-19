@@ -29,6 +29,8 @@
 #define DEFAULT_SET_TEMP 100
 #define UPPER_LIM 300
 #define LOWER_LIM 0
+#define RANGE_LOW 20
+#define RANGE_HIGH 305
 
 // Timing
 #define SELECT_DELAY 100
