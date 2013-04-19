@@ -1,1 +1,20 @@
-OvenControl KEYWORD1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Datatypes (KEYWORD1)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+OvenControl	KEYWORD1
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Methods and Functions (KEYWORD2)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+inputSetPoint	KEYWORD2
+volt2Temp	KEYWORD2
+checkLimits	KEYWORD2
+updateHeater	KEYWORD2
+displayTemp	KEYWORD2
+displayWarning	KEYWORD2
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Constants (LITERAL1)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

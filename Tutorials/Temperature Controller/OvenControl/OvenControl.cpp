@@ -8,6 +8,7 @@
 #include "OvenControl.h"
 #include <LiquidCrystal.h>
 
+// alert compiler that lcd will be defined in sketch
 extern LiquidCrystal lcd;
 
 // ********** Required in Sketch **********
@@ -28,11 +29,10 @@ OvenControl::OvenControl()
 	digitalWrite(HEATER_PIN, LOW);
 
 	// ********** Variable Initialization **********
-	byte setPoint = DEFAULT_SET_TEMP; // Dynamic setPoint
-	int adcKeyIn; // ADC value of input button
+	byte setPoint = DEFAULT_SET_TEMP; // Dynamic set point
+	int adcKeyIn; // ADC value of input button (0 to 1023)
 	float currentTemp; // dynamic current temperature
-	byte danger = 0; // used to signal dangerous temperatures
-	boolean heaterStatus = LOW; // heater on/off
+	byte danger = 0; // used to signal dangerous temperatures (0, 1, or 2)
 }
 
 // ********** Functions **********

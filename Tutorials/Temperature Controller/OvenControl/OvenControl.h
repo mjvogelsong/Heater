@@ -25,8 +25,10 @@
 #define V5         689
 #define VNONE      1000
 
-// Default input temperature
+// Temperatures
 #define DEFAULT_SET_TEMP 100
+#define UPPER_LIM 300
+#define LOWER_LIM 0
 
 // Timing
 #define SELECT_DELAY 100
@@ -59,7 +61,6 @@ class OvenControl
 		int adcKeyIn; // ADC value of input button
 		float currentTemp; // dynamic current temperature
 		byte danger; // used to signal dangerous temperatures
-		boolean heaterStatus; // heater on/off
 		
 	private:
 		void startingScreen();

@@ -43,16 +43,17 @@ void setup()
 void loop()
 {
 	ovc.inputSetPoint();
-	ovc.danger = 0;
-	while ( ovc.danger == 0 )
+	ovc.danger = 0; // start with assumption of safe current temp
+	while ( ovc.danger == 0 ) // no danger
 	{
 		ovc.currentTemp = ovc.volt2Temp(READ_PIN);
-		ovc.danger = ovc.checkLimits(ovc.currentTemp, 0, 300);
+		ovc.danger = ovc.checkLimits(ovc.currentTemp, LOWER_LIM, UPPER_LIM);
 		ovc.updateHeater(ovc.currentTemp, ovc.setPoint, HEATER_PIN);
 		if ( ovc.danger == 0 )
 		{
 			ovc.displayTemp(ovc.currentTemp, ovc.setPoint);
-			delay(CHECK_TIME);
+			delay(CHECK_TIME); 	// can wait a little bit before checking
+								// the temperature again
 		}
 	}
 	ovc.displayWarning(ovc.danger);
