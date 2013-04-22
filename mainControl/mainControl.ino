@@ -2,7 +2,6 @@
 ********************************
 mainControl.ino
 ********************************
-
 Michael Vogelsong
 4/14/13
 
@@ -25,8 +24,6 @@ Functions:
 
 // select the pins used on the LCD panel (create instance of type LiquidCrystal)
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
-
-
 
 // ~~~~~~~~~~~~~~~ Methods ~~~~~~~~~~~~~~~~~
 
