@@ -15,7 +15,6 @@
 #define LEFT    3
 #define SELECT  4
 #define NONE    5
-
 // Button ADC Limits
 #define V1         50
 #define V2         148
@@ -30,10 +29,12 @@ class ButtonIO
 		// Functions
 		ButtonIO( byte buttonPin );
 		byte waitForButton();
-		void actionNavigate( byte button, byte* col, byte* row,
+		void actionNavigate( byte button, int duration,
+							 byte* col, byte* row,
 							 byte left, byte right,
 							 byte top, byte bottom );
-		int actionIncDec( byte button, byte col, byte row,
+		int actionIncDec( byte button, int duration,
+						  byte col, byte row,
 						  int value, int maxDigits,
 						  int upperLim, int lowerLim );
 		// Variables

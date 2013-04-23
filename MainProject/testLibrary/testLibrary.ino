@@ -1,8 +1,10 @@
 #include <ButtonIO.h>
 #include <LiquidCrystal.h>
+#include <CurveInput.h>
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 ButtonIO btn(0);
+CurveInput cinp;
 
 // Debugging
 #define DEBUG 1
@@ -20,6 +22,6 @@ void setup()
 }
 void loop()
 {
-  byte x = btn.waitForButton();
+  boolean x = cinp.chooseCurve();
   Serial.println(x);
 }

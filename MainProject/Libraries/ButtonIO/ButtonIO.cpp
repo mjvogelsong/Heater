@@ -62,7 +62,8 @@ byte ButtonIO::readLcdKeys()
 	return NONE; // when all others fail, return this...
 }
 
-void ButtonIO::actionNavigate( byte button, byte* col, byte* row,
+void ButtonIO::actionNavigate( byte button, int duration,
+							 byte* col, byte* row,
 							 byte left, byte right,
 							 byte top, byte bottom )
 {
@@ -94,9 +95,11 @@ void ButtonIO::actionNavigate( byte button, byte* col, byte* row,
 		}
 	}
 	lcd.setCursor(*col, *row);
+	delay(duration);
 }
 
-int ButtonIO::actionIncDec( byte button, byte col, byte row,
+int ButtonIO::actionIncDec( byte button, int duration,
+							byte col, byte row,
 							int value, int maxDigits,
 							int upperLim, int lowerLim )
 {
@@ -117,6 +120,7 @@ int ButtonIO::actionIncDec( byte button, byte col, byte row,
 	}
 	clearRegion(maxDigits, col, row);
 	lcd.print(value);
+	delay(duration);
 	return value;
 }
 

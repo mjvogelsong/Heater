@@ -30,17 +30,10 @@ CurveInput::CurveInput()
 }
 
 // ********** Functions **********
-void CurveInput::printWelcome()
-{
-	lcd.clear();
-	lcd.home();
-	lcd.print("Welcome to");
-	lcd.setCursor(0, 1);
-	lcd.print("Reflow Control!");
-}
 
 boolean CurveInput::chooseCurve()
 {
+	printWelcome(WELCOME_DURATION);
 	printCurveChoices();
 	byte buttonID = NONE;
 	byte col = 0;
@@ -49,12 +42,24 @@ boolean CurveInput::chooseCurve()
 	while ( buttonID != SELECT )
 	{
 		buttonID = btn.waitForButton();
-		actionNavigate(buttonID, col, row, 0, 0, 0, 1);
+		btn.actionNavigate(buttonID, CURVE_CHOICE_DURATION,
+						   &col, &row, 0, 0, 0, 1);
 	}
-	return row;
+	lcd.noBlink();
+	return row; // Choice will either be top or bottom row
 }
 
-void CurveInput::printCurveChoices();
+void CurveInput::printWelcome( int duration )
+{
+	lcd.clear();
+	lcd.home();
+	lcd.print("Welcome to");
+	lcd.setCursor(0, 1);
+	lcd.print("Reflow Control!");
+	delay(duration);
+}
+
+void CurveInput::printCurveChoices()
 {
 	lcd.clear();
 	lcd.home();
