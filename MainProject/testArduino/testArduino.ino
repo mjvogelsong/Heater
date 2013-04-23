@@ -12,6 +12,10 @@ void setup()
 }
 void loop()
 {
-  byte x = btn.waitForButton();
+  byte x = 0%3;
   Serial.println(x);
+  while( true )
+  {
+    delay(10000);
+  }
 }

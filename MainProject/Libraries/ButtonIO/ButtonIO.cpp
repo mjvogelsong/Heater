@@ -6,6 +6,7 @@
 // ********** Library Dependencies **********
 #include "Arduino.h"
 #include "ButtonIO.h"
+#include <LiquidCrystal.h>
 
 // alert compiler that lcd will be defined in sketch
 extern LiquidCrystal lcd;
@@ -69,33 +70,33 @@ void ButtonIO::actionNavigate( byte button, byte* col, byte* row,
 	{
 		case UP:
 		{
-			if ( row == top ) row = bottom;
-			else row = top;
+			if ( *row == top ) *row = bottom;
+			else *row = top;
 			break;
 		}
 		case DOWN:
 		{
-			if ( row == bottom ) row = top;
-			else row = bottom;
+			if ( *row == bottom ) *row = top;
+			else *row = bottom;
 			break;
 		}
 		case LEFT:
 		{
-			if ( col == left ) col = right;
-			else col--;
+			if ( *col == left ) *col = right;
+			else (*col)--;
 			break;
 		}
-		case Right:
+		case RIGHT:
 		{
-			if ( col == right ) col = left;
-			else col++;
+			if ( *col == right ) *col = left;
+			else (*col)++;
 			break;
 		}
 	}
-	lcd.setCursor(col, row);
+	lcd.setCursor(*col, *row);
 }
 
-int ButtonIO::actionIncDec( byte col, byte row,
+int ButtonIO::actionIncDec( byte button, byte col, byte row,
 							int value, int maxDigits,
 							int upperLim, int lowerLim )
 {
@@ -113,9 +114,10 @@ int ButtonIO::actionIncDec( byte col, byte row,
 			else value--;
 			break;
 		}
-		clearRegion(maxDigits, col, row);
-		lcd.print(value);
-		return value
+	}
+	clearRegion(maxDigits, col, row);
+	lcd.print(value);
+	return value;
 }
 
 void ButtonIO::clearRegion( byte clearLength, byte col, byte row )

@@ -30,10 +30,10 @@ class ButtonIO
 		// Functions
 		ButtonIO( byte buttonPin );
 		byte waitForButton();
-		byte actionNavigate( byte button, byte col, byte row,
+		void actionNavigate( byte button, byte* col, byte* row,
 							 byte left, byte right,
 							 byte top, byte bottom );
-		int actionIncDec( byte col, byte row,
+		int actionIncDec( byte button, byte col, byte row,
 						  int value, int maxDigits,
 						  int upperLim, int lowerLim );
 		// Variables
