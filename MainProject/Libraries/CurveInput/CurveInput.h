@@ -17,13 +17,6 @@
 #define btnSELECT  4
 #define btnNONE    5
 
-// Button ADC Limits
-#define V1         50
-#define V2         148
-#define V3         305
-#define V4         459
-#define V5         689
-#define VNONE      1000
 
 // Temperatures
 #define UPPER_LIM 300

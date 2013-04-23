@@ -7,8 +7,17 @@
 #include "Arduino.h"
 #include "ButtonIO.h"
 
+// alert compiler that lcd will be defined in sketch
+extern LiquidCrystal lcd;
+
 // ********** Required in Sketch **********
-// NONE
+// #include "LiquidCrystal.h"
+// %% Global %%
+// LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+
+// %% Setup %%
+// lcd.begin(16, 2);
+// Serial.begin(9600);
 
 // ********** Contructor **********
 ButtonIO::ButtonIO( byte buttonPin )
@@ -50,4 +59,71 @@ byte ButtonIO::readLcdKeys()
 	if (adcKeyIn < V4) return LEFT;
 	if (adcKeyIn < V5) return SELECT;
 	return NONE; // when all others fail, return this...
+}
+
+void ButtonIO::actionNavigate( byte button, byte* col, byte* row,
+							 byte left, byte right,
+							 byte top, byte bottom )
+{
+	switch ( button ) 	// depending on which button was pushed
+	{
+		case UP:
+		{
+			if ( row == top ) row = bottom;
+			else row = top;
+			break;
+		}
+		case DOWN:
+		{
+			if ( row == bottom ) row = top;
+			else row = bottom;
+			break;
+		}
+		case LEFT:
+		{
+			if ( col == left ) col = right;
+			else col--;
+			break;
+		}
+		case Right:
+		{
+			if ( col == right ) col = left;
+			else col++;
+			break;
+		}
+	}
+	lcd.setCursor(col, row);
+}
+
+int ButtonIO::actionIncDec( byte col, byte row,
+							int value, int maxDigits,
+							int upperLim, int lowerLim )
+{
+	switch ( button ) 	// depending on which button was pushed
+	{
+		case UP:
+		{
+			if ( value == upperLim ) value = lowerLim;
+			else value++;
+			break;
+		}
+		case DOWN:
+		{
+			if ( value == lowerLim ) value = upperLim;
+			else value--;
+			break;
+		}
+		clearRegion(maxDigits, col, row);
+		lcd.print(value);
+		return value
+}
+
+void ButtonIO::clearRegion( byte clearLength, byte col, byte row )
+{
+	lcd.setCursor(col, row);
+	for ( int i = 0; i < (clearLength); i++)
+	{
+		lcd.print(" ");
+	}
+	lcd.setCursor(col, row);
 }

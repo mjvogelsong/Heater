@@ -30,11 +30,18 @@ class ButtonIO
 		// Functions
 		ButtonIO( byte buttonPin );
 		byte waitForButton();
+		byte actionNavigate( byte button, byte col, byte row,
+							 byte left, byte right,
+							 byte top, byte bottom );
+		int actionIncDec( byte col, byte row,
+						  int value, int maxDigits,
+						  int upperLim, int lowerLim );
 		// Variables
 		byte currentButton;
 	private:
 		// Functions
 		byte readLcdKeys();
+		void clearRegion( byte clearLength, byte col, byte row );
 		// Variables
 		int adcKeyIn;
 		byte BUTTON_PIN;
