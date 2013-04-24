@@ -33,6 +33,18 @@ CurveInput::CurveInput()
 }
 
 // ********** Functions **********
+void CurveInput::main();
+{
+	boolean choice = chooseCurve();
+	loadCurve(choice);
+}
+
+void CurveInput::initLCD( byte* col, byte* row );
+{
+	lcd.clear();
+	*col = 0; *row = 0;
+	lcd.setCursor(*col, *row);
+}
 
 // Allows the user to choose whether they want to use
 //		a default heating curve or define their own curve
@@ -42,8 +54,7 @@ boolean CurveInput::chooseCurve()
 	printWelcome(WELCOME_DURATION);
 	printCurveChoices();
 	byte buttonID = NONE;
-	col = 0;
-	row = 0; // starts on default choice
+	initLCD(&col, &row);
 	lcd.blink(); // show cursor
 	while ( buttonID != SELECT ) // any button other than SELECT
 	{
@@ -61,8 +72,7 @@ boolean CurveInput::chooseCurve()
 // Prints welcome screen on LCD
 void CurveInput::printWelcome( int duration )
 {
-	lcd.clear();
-	lcd.home();
+	initLCD(&col, &row);
 	lcd.print("Welcome to");
 	lcd.setCursor(0, 1);
 	lcd.print("Reflow Control!");
@@ -72,8 +82,7 @@ void CurveInput::printWelcome( int duration )
 // Prints curve choices on the LCD screen
 void CurveInput::printCurveChoices()
 {
-	lcd.clear();
-	lcd.home();
+	initLCD(&col, &row);
 	lcd.print("A: Default Curve");
 	lcd.setCursor(0, 1);
 	lcd.print("B: User Curve");
@@ -82,11 +91,20 @@ void CurveInput::printCurveChoices()
 
 void CurveInput::loadCurve( boolean choice )
 {
-	if ( !choice ) loadDefault();
-	else loadUserCurve();
+	if ( !choice ) 
+	{
+		loadDefault();
+		lcd.print("Loaded Default");
+	}
+	else
+	{
+		loadUserCurve();
+		lcd.print("Loaded User"
+	}
+	
 }
 
-void CurveInput::loadDefault();
+void CurveInput::loadDefault()
 {
 	temp[0] = 25;
 	temp[1] = 150;
@@ -100,8 +118,38 @@ void CurveInput::loadDefault();
 	time[3] = getTime(3, 2);
 	time[4] = getTime(4, -6);
 }
-1
+
 int CurveInput::getTime( int current, float rate );
 {
 	return time[current-1] + round((temp[current] - temp[current-1]) / rate);
+}
+
+void CurveInput::loadUserCurve()
+{
+	printAssumption();
+	getCurvePoints();
+}
+
+void CurveInput::printAssumption()
+{
+	initLCD(&col, &row);
+	lcd.print("Assuming");
+	lcd.setCursor(0, 1);
+	lcd.print("temp[0] = 25 C");
+	delay(ASSUME_DURATION);
+}
+
+void CurveInput::getCurvePoints()
+{
+	boolean keepTakingPoints = true;
+	byte index = 1;
+	while ( keepTakingPoints )
+	{
+		times[index] = getTimePoint(index);
+	}
+}
+
+int CurveInput::getTimePoint( int index );
+{
+	
 }

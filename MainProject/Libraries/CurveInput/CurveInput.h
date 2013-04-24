@@ -11,6 +11,7 @@
 // ********** Constants **********
 #define WELCOME_DURATION 2000
 #define CURVE_CHOICE_DURATION 250
+#define ASSUME_DURATION 1000
 
 class CurveInput
 {
