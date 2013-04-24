@@ -17,9 +17,13 @@ class CurveInput
 	public:
 		CurveInput();
 		boolean chooseCurve();
+		int times[10];
+		int temps[10];
 	private:
 		void printCurveChoices();
 		void printWelcome( int duration );
+		byte col;
+		byte row;
 };
 
 #endif

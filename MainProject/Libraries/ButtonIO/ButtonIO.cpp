@@ -23,13 +23,15 @@ extern LiquidCrystal lcd;
 // ********** Contructor **********
 ButtonIO::ButtonIO( byte buttonPin )
 {
-	byte BUTTON_PIN = buttonPin;
-	byte currentButton;
-	int adcKeyIn;
-	pinMode(BUTTON_PIN, INPUT);
+	byte currentButton; 		// init
+	int adcKeyIn; 				// init
+	pinMode(BUTTON_PIN, INPUT); // prepare button input pin
 }
 
 // ********** Functions **********
+
+// Waits for button to be pushed
+// Returns with the button ID
 byte ButtonIO::waitForButton()
 {
 	adcKeyIn = 1023; // ADC corresponding to no buttons pushed
@@ -47,6 +49,8 @@ byte ButtonIO::waitForButton()
 	return currentButton;
 }
 
+// Helper function reads the ADC value and converts it to the
+// 		button ID
 byte ButtonIO::readLcdKeys()
 {
 	adcKeyIn = analogRead(BUTTON_PIN); // read the value from the sensor
@@ -62,42 +66,59 @@ byte ButtonIO::readLcdKeys()
 	return NONE; // when all others fail, return this...
 }
 
+// General purpose navigation of the LCD screen:
+// Params:
+// 		button: button ID
+//		duration: how long to delay (prevents too-fast movement)
+//		col, row: LCD locations (use pointers to access/change)
+//		left, right, top, bottom: sets boxed limit on where the cursor
+//			can move
+// **Note** the generality adds params, but it also makes it easier to reuse
+//		for different input strategies
 void ButtonIO::actionNavigate( byte button, int duration,
 							 byte* col, byte* row,
 							 byte left, byte right,
 							 byte top, byte bottom )
 {
-	switch ( button ) 	// depending on which button was pushed
+	switch ( button )
 	{
 		case UP:
 		{
-			if ( *row == top ) *row = bottom;
-			else *row = top;
-			break;
+			if ( *row == top ) *row = bottom; 	// only need to move
+			else *row = top; 					// between top and bottom
+			break;								// row
 		}
 		case DOWN:
 		{
-			if ( *row == bottom ) *row = top;
+			if ( *row == bottom ) *row = top;	// opposite of case UP
 			else *row = bottom;
 			break;
 		}
 		case LEFT:
 		{
-			if ( *col == left ) *col = right;
-			else (*col)--;
+			if ( *col == left ) *col = right;	// wrap back to right edge
+			else (*col)--;						// move 1 left
 			break;
 		}
 		case RIGHT:
 		{
-			if ( *col == right ) *col = left;
-			else (*col)++;
+			if ( *col == right ) *col = left;	// wrap back to left edge
+			else (*col)++;						// move 1 right
 			break;
 		}
 	}
-	lcd.setCursor(*col, *row);
-	delay(duration);
+	lcd.setCursor(*col, *row);	// new location of cursor
+	delay(duration);		// prevent quick movement
 }
 
+// General purpose increment/decrement:
+// Params:
+// 		button: button ID
+//		duration: how long to delay (prevents too-fast movement)
+//		col, row: LCD locations (no changes => no pointers needed)
+//		value: value to be changed
+//		maxDigits: how big the value can be (digits wide)
+//		upperLim, lowerLim: limits on range of values
 int ButtonIO::actionIncDec( byte button, int duration,
 							byte col, byte row,
 							int value, int maxDigits,
@@ -107,29 +128,31 @@ int ButtonIO::actionIncDec( byte button, int duration,
 	{
 		case UP:
 		{
-			if ( value == upperLim ) value = lowerLim;
+			if ( value == upperLim ) value = lowerLim; // reached upper limit
 			else value++;
 			break;
 		}
 		case DOWN:
 		{
-			if ( value == lowerLim ) value = upperLim;
+			if ( value == lowerLim ) value = upperLim; // reached lower limit
 			else value--;
 			break;
 		}
 	}
-	clearRegion(maxDigits, col, row);
+	clearRegion(maxDigits, col, row); // clear number space on LCD
 	lcd.print(value);
 	delay(duration);
-	return value;
+	return value;	// still need the value (in addition to changing 
+					// 		the LCD display)
 }
 
+// Helper function clears a specified string of digits
 void ButtonIO::clearRegion( byte clearLength, byte col, byte row )
 {
 	lcd.setCursor(col, row);
 	for ( int i = 0; i < (clearLength); i++)
 	{
-		lcd.print(" ");
+		lcd.print(" "); // single element clear
 	}
-	lcd.setCursor(col, row);
+	lcd.setCursor(col, row); // return to original cursor location
 }

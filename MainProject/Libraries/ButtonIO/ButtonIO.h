@@ -8,14 +8,14 @@
 
 #include "Arduino.h"
 
-// Buttons
+// Buttons - give descriptive names to the return values
 #define RIGHT   0
 #define UP      1
 #define DOWN    2
 #define LEFT    3
 #define SELECT  4
 #define NONE    5
-// Button ADC Limits
+// Button ADC Limits - experimentally determined
 #define V1         50
 #define V2         148
 #define V3         305
