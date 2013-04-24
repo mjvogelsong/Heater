@@ -53,9 +53,8 @@ boolean CurveInput::chooseCurve()
 {
 	printWelcome(WELCOME_DURATION);
 	printCurveChoices();
-	byte buttonID = NONE;
-	initLCD(&col, &row);
 	lcd.blink(); // show cursor
+	byte buttonID = NONE;
 	while ( buttonID != SELECT ) // any button other than SELECT
 	{
 		buttonID = btn.waitForButton();
@@ -141,15 +140,49 @@ void CurveInput::printAssumption()
 
 void CurveInput::getCurvePoints()
 {
-	boolean keepTakingPoints = true;
-	byte index = 1;
-	while ( keepTakingPoints )
+	for ( int i = 1; i < 5; i++ )
 	{
-		times[index] = getTimePoint(index);
+		times[i] = getTimePoint(i);
+		temps[i] = getTempPoint(i);
 	}
 }
 
 int CurveInput::getTimePoint( int index );
 {
-	
+	initLCD(&col, &row);
+	lcd.print("Enter Time ");
+	lcd.print(index);
+	lcd.print(":")
+	lcd.setCursor(0, 1);
+	byte buttonID = NONE;
+	int thisTime = time[index];
+	lcd.print(thisTime)
+	while ( buttonID != SELECT ) // any button other than SELECT
+	{
+		buttonID = btn.waitForButton();
+		thisTime = btn.actionIncDec(buttonID, 100, col, row,
+		                                thisTime, 3, 0, 300);
+										// TODO: index-specific bounds
+	}
+	return thisTime;
+}
+
+int CurveInput::getTempPoint( int index );
+{
+	initLCD(&col, &row);
+	lcd.print("Enter Temp ");
+	lcd.print(index);
+	lcd.print(":")
+	lcd.setCursor(0, 1);
+	byte buttonID = NONE;
+	int thisTemp = temp[index];
+	lcd.print(thisTemp)
+	while ( buttonID != SELECT ) // any button other than SELECT
+	{
+		buttonID = btn.waitForButton();
+		thisTime = btn.actionIncDec(buttonID, 100, col, row,
+		                                thisTemp, 3, 0, 300);
+										// TODO: index-specific bounds
+	}
+	return thisTemp;
 }
