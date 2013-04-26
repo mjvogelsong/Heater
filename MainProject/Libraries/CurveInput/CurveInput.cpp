@@ -5,11 +5,11 @@
 
 // ********** Library Dependencies **********
 #include "Arduino.h"
-#include "CurveInput.h"
+#include <CurveInput.h>
 #include <LiquidCrystal.h>
 #include <ButtonIO.h>
 
-// alert compiler
+// alert compiler on external definitions
 extern LiquidCrystal lcd;
 extern ButtonIO btn;
 
@@ -28,8 +28,8 @@ CurveInput::CurveInput()
 {
 	byte col;
 	byte row;
-	int times[5];
-	int temps[5];
+	int times[5]; // will hold time points to define the stages
+	int temps[5]; // will hold temperature points
 }
 
 // ********** Functions **********
@@ -39,6 +39,9 @@ void CurveInput::main()
 	loadCurve(choice);
 }
 
+// Simple clearing of LCD screen while simultaneously
+//  	updating the col and row trackers
+//  	col, row: pointers to locations on LCD
 void CurveInput::initLCD( byte* col, byte* row )
 {
 	lcd.clear();
@@ -69,6 +72,7 @@ boolean CurveInput::chooseCurve()
 }
 
 // Prints welcome screen on LCD
+//  	duration: time spent on welcome screen
 void CurveInput::printWelcome( int duration )
 {
 	initLCD(&col, &row);
@@ -88,50 +92,63 @@ void CurveInput::printCurveChoices()
 	lcd.setCursor(0, 0);
 }
 
+// Master function for obtaining the information needed
+//  	to define the reflow curve
+//  	choice: 0 - default
+//  	        1 - user-defined
 void CurveInput::loadCurve( boolean choice )
 {
-	if ( !choice ) 
+	if ( !choice ) // Default
 	{
-		loadDefault();
+		loadDefault(); // get the default times and temps
 		initLCD(&col, &row);
 		lcd.print("Loaded Default");
 	}
 	else
 	{
-		loadUserCurve();
+		loadUserCurve(); // get the user's times and temps
 		initLCD(&col, &row);
 		lcd.print("Loaded User");
 	}
-	
 }
 
+// Loads the times and temps arrays with the default curve data
 void CurveInput::loadDefault()
 {
-	temps[0] = 25;
-	temps[1] = 150;
-	temps[2] = 150;
-	temps[3] = 245;
-	temps[4] = 200;
+	temps[0] = 25; // assume starting at room temperature
+	temps[1] = 150; // end ramp-to-soak, begin soak
+	temps[2] = 150; // end soak, begin ramp-to-peak
+	temps[3] = 245; // peak, begin cooling
+	temps[4] = 200; // cooled
 	
 	times[0] = 0;
-	times[1] = getTime(1, 2);
-	times[2] = times[1] + 90;
-	times[3] = getTime(3, 2);
-	times[4] = getTime(4, -6);
+	times[1] = getTime(1, 2); // 1-3 deg/s
+	times[2] = times[1] + 90; // soak duration: 90 s
+	times[3] = getTime(3, 2); // 1-3 deg/s
+	times[4] = getTime(4, -6); // -6 deg/s
 }
 
+// Calculates next time point based on the temperature change
+//      and the desired rate of heating (+) / cooling (-)
+// Simple y = mx + b model
+//  	current: index for current time point
+//  	rate: degrees C / second
 int CurveInput::getTime( int current, float rate )
 {
 	return times[current-1] + round((temps[current] - temps[current-1]) / rate);
 }
 
+// Gets the time and temp information from the user, and
+//  	loads it into the arrays
 void CurveInput::loadUserCurve()
 {
-	printAssumption();
-	loadDefault();
+	printAssumption(); // assume time[0] = 25
+	loadDefault(); // this will set the starting values for when the
+	               // user inputs the times and temps
 	getCurvePoints();
 }
 
+// Tells user that we are assuming room temperature start
 void CurveInput::printAssumption()
 {
 	initLCD(&col, &row);
@@ -141,9 +158,10 @@ void CurveInput::printAssumption()
 	delay(ASSUME_DURATION);
 }
 
+// Prompts the user to input times and temps
 void CurveInput::getCurvePoints()
 {
-	for ( int i = 1; i < 5; i++ )
+	for ( int i = 1; i < 5; i++ ) // need 4 points
 	{
 		times[i] = getTimePoint(i);
 		temps[i] = getTempPoint(i);
@@ -151,6 +169,8 @@ void CurveInput::getCurvePoints()
 	delay(SELECT_DURATION);
 }
 
+// Allows user to change and select the time point
+//  	index: index of the current time point
 int CurveInput::getTimePoint( int index )
 {
 	initLCD(&col, &row);
@@ -159,21 +179,33 @@ int CurveInput::getTimePoint( int index )
 	lcd.print(":");
 	lcd.setCursor(0, 1);
 	byte buttonID = NONE;
-	int thisTime = times[index];
+	int thisTime = times[index]; // scoping current time
 	lcd.print(thisTime);
 	col = 0; row = 1;
 	lcd.setCursor(col, row);
 	delay(SELECT_DURATION);
+	int lowerLimit, upperLimit;
+	getTimeLimits(index, &lowerLimit, &upperLimit);
 	while ( buttonID != SELECT ) // any button other than SELECT
 	{
 		buttonID = btn.waitForButton();
 		thisTime = btn.actionIncDec(buttonID, TIME_TEMP_DURATION,
-		                            col, row, thisTime, 3, 0, 300);
-		                            // TODO: index-specific bounds
+		                            col, row, thisTime, 3,
+		                            lowerLimit, upperLimit);
+		                            // user adjusts time
 	}
 	return thisTime;
 }
 
+int CurveInput::getTimeLimits( int index, int* lowerLimit,
+                               int* upperLimit )
+{
+	*lowerLimit = times[index-1] + 1;
+	*upperLimit = *lowerLimit + 120;
+}
+
+// Allows user to change and select the temperature point
+//  	index: index of the current temperature point
 int CurveInput::getTempPoint( int index )
 {
 	initLCD(&col, &row);
@@ -182,7 +214,7 @@ int CurveInput::getTempPoint( int index )
 	lcd.print(":");
 	lcd.setCursor(0, 1);
 	byte buttonID = NONE;
-	int thisTemp = temps[index];
+	int thisTemp = temps[index]; // scoping
 	lcd.print(thisTemp);
 	col = 0; row = 1;
 	lcd.setCursor(col, row);
@@ -190,9 +222,10 @@ int CurveInput::getTempPoint( int index )
 	while ( buttonID != SELECT ) // any button other than SELECT
 	{
 		buttonID = btn.waitForButton();
+		// TODO: index-specific bounds
 		thisTemp = btn.actionIncDec(buttonID, TIME_TEMP_DURATION,
-		                            col, row, thisTemp, 3, 0, 300);
-		                            // TODO: index-specific bounds
+		                            col, row, thisTemp, 3, 25, 300);
+		                            // user adjusts temperature
 	}
 	return thisTemp;
 }

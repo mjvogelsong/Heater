@@ -9,10 +9,12 @@ Functions:
 
 ********************************
 */
-
+// ~~~~~~~~~~~~~~~~ Libraries ~~~~~~~~~~~~~~~~
 #include <LiquidCrystal.h>
+#include <ButtonIO.h>
+#include <CurveInput.h>
 
-// Debugging
+// ~~~~~~~~~~~~~~~~ Debugging ~~~~~~~~~~~~~~~~~
 #define DEBUG 1
 #ifdef DEBUG
   #define DEBUG_PRINT(x) Serial.println(x)
@@ -21,12 +23,9 @@ Functions:
 #endif
 
 // ~~~~~~~~~~~~~~~ Global Initialization ~~~~~~~~~~~~~~~~~
-
-// select the pins used on the LCD panel (create instance of type LiquidCrystal)
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
-
-// ~~~~~~~~~~~~~~~ Methods ~~~~~~~~~~~~~~~~~
-
+ButtonIO btn(0);
+CurveInput curvIn;
 
 // ~~~~~~~~~~~~~~~ Setup ~~~~~~~~~~~~~~~~~
 void setup()
@@ -37,77 +36,44 @@ void setup()
 // ~~~~~~~~~~~~~~~ Main Loop ~~~~~~~~~~~~~~~~~
 void loop()
 {
-  inputCurve();
-  {
-   printWelcome();
-   printChoice();
-   buttonAction();
-   if (defaultReflow)
-   {
-     pattern = applyDefault();
-   }
-   else // User-Defined
-   {
-     pattern = applyUserControl();
-     {
-       printAssumption();
-       userCurvePoints();
-       {
-         while (keepTakingPoints);
-         {
-           getPoint();
-           {
-             nextTimePoint = getTimePoint();
-             nextTempPoint = getTempPoint();
-           }
-           error = checkPoint();
-           while (error)
-           {
-             printError();
-             getPoint();
-             checkPoint();
-           }
-           keepTakingPoints = askNextPoint();
-          } 
-        }
-      }
-    } 
-  }
-  controlHeater();
-  {
-    while ((stageCounter <= maxStage) && !error)
-    {
-      calculateStageInfo();
-      while (secondCounter <= maxSeconds)
-      {
-        loopBegin = millis();
-        getCurrentStats();
-        printCurrentStats();
-        getModelTemp();
-        controlHeater();
-        checkUnsafe();
-        secondCounter = secondCounter + 1;
-        delay(1000 - (millis() - loopBegin));
-      }
-      stageCounter = stageCounter + 1;
-      checkError();
-    }
-  }
-  endReport()
-  {
-    if (error)
-    {
-      printError();
-    }
-    else
-    {
-      printDone();
-      printSimpleResults();
-      if (askExportStats())
-      {
-        exportStats();
-      }
-    }
-  }
-  finish();
+	// TODO: improve
+	curvIn.main()
+	// TODO: implement
+	controlHeater();
+	{
+		while ((stageCounter <= maxStage) && !error)
+		{
+			calculateStageInfo();
+			while (secondCounter <= maxSeconds)
+			{
+				loopBegin = millis();
+				getCurrentStats();
+				printCurrentStats();
+				getModelTemp();
+				controlHeater();
+				checkUnsafe();
+				secondCounter = secondCounter + 1;
+				delay(1000 - (millis() - loopBegin));
+			}
+			stageCounter = stageCounter + 1;
+			checkError();
+		}
+	}
+	endReport()
+	{
+		if (error)
+		{
+			printError();
+		}
+		else
+		{
+			printDone();
+			printSimpleResults();
+			if (askExportStats())
+			{
+				exportStats();
+			}
+		}
+	}
+	finish();
 }

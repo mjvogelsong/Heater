@@ -122,7 +122,7 @@ void ButtonIO::actionNavigate( byte button, int duration,
 int ButtonIO::actionIncDec( byte button, int duration,
 							byte col, byte row,
 							int value, int maxDigits,
-							int upperLim, int lowerLim )
+							int lowerLim, int upperLim )
 {
 	switch ( button ) 	// depending on which button was pushed
 	{
@@ -147,6 +147,8 @@ int ButtonIO::actionIncDec( byte button, int duration,
 }
 
 // Helper function clears a specified string of digits
+//  	clearLength: how much space to clear
+//  	col, row: locations on LCD
 void ButtonIO::clearRegion( byte clearLength, byte col, byte row )
 {
 	lcd.setCursor(col, row);
