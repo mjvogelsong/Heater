@@ -11,18 +11,34 @@
 // ********** Constants **********
 #define WELCOME_DURATION 2000
 #define CURVE_CHOICE_DURATION 250
-#define ASSUME_DURATION 1000
+#define ASSUME_DURATION 2000
+#define SELECT_DURATION 500
+#define TIME_TEMP_DURATION 80
 
 class CurveInput
 {
 	public:
+		// Functions
 		CurveInput();
+		void main();
 		boolean chooseCurve();
-		int times[10];
-		int temps[10];
+		// Variables
+		int times[5];
+		int temps[5];
 	private:
+		// Functions
 		void printCurveChoices();
 		void printWelcome( int duration );
+		void initLCD( byte* col, byte* row );
+		void loadCurve( boolean choice );
+		void loadDefault();
+		int getTime( int current, float rate );
+		void loadUserCurve();
+		void printAssumption();
+		void getCurvePoints();
+		int getTimePoint( int index );
+		int getTempPoint( int index );
+		// Variables
 		byte col;
 		byte row;
 };
