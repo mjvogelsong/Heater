@@ -12,6 +12,8 @@
 // alert compiler on external definitions
 extern LiquidCrystal lcd;
 extern ButtonIO btn;
+extern int times[5];
+extern int temps[5];
 
 // ********** Required in Sketch **********
 // #include "LiquidCrystal.h"
@@ -28,8 +30,6 @@ CurveInput::CurveInput()
 {
 	byte col;
 	byte row;
-	int times[5]; // will hold time points to define the stages
-	int temps[5]; // will hold temperature points
 }
 
 // ********** Functions **********

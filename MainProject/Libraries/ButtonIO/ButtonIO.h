@@ -8,6 +8,7 @@
 
 #include "Arduino.h"
 
+#define BUTTON_PIN 0
 // Buttons - give descriptive names to the return values
 #define RIGHT   0
 #define UP      1
@@ -37,15 +38,14 @@ class ButtonIO
 						  byte col, byte row,
 						  int value, int maxDigits,
 						  int upperLim, int lowerLim );
+		void clearRegion( byte clearLength, byte col, byte row );
 		// Variables
 		byte currentButton;
 	private:
 		// Functions
 		byte readLcdKeys();
-		void clearRegion( byte clearLength, byte col, byte row );
 		// Variables
 		int adcKeyIn;
-		byte BUTTON_PIN;
 };
 
 #endif

@@ -26,6 +26,8 @@ Functions:
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 ButtonIO btn(0);
 CurveInput curvIn;
+int times[5]; // will hold time points to define the stages
+int temps[5]; // will hold temperature points
 
 // ~~~~~~~~~~~~~~~ Setup ~~~~~~~~~~~~~~~~~
 void setup()

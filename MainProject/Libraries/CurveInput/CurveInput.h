@@ -23,8 +23,6 @@ class CurveInput
 		void main();
 		boolean chooseCurve();
 		// Variables
-		int times[5];
-		int temps[5];
 	private:
 		// Functions
 		void printCurveChoices();
