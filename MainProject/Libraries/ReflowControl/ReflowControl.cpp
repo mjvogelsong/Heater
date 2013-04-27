@@ -20,6 +20,7 @@ extern double pidOutput;
 extern double setPoint;
 extern int times[5];
 extern int temps[5];
+//extern int tempSamples[250];
 
 // ********** Required in Sketch **********
 // #include "LiquidCrystal.h"
@@ -48,12 +49,15 @@ ReflowControl::ReflowControl()
 	long overallStartTime;
 	long overallEndTime;
 	long overallTimeLeft;
+	int sampleIndex = 0;
+	float maxTemp = 0;
 }
 
 // ********** Functions **********
 // Runs the whole reflow heating process
 void ReflowControl::main()
 {
+	waitForStart();
 	initPID(); // initialize PID controller
 	byte stageNumber = 1; // First stage: ramp
 	printDisplay(); // prints template for displaying
@@ -61,6 +65,45 @@ void ReflowControl::main()
 	while ( stageNumber < 5 ) // Last stage: cool (4)
 	{
 		stageNumber = operateStage(stageNumber);
+	}
+	lcd.clear();
+	lcd.home();
+	lcd.print("     DONE!");
+	for(int count = 0; count < 5; count++)
+	{	// Blink off and on
+		lcd.noDisplay();
+		delay(BLINK_TIME);
+		lcd.display();
+		delay(BLINK_TIME);
+	}
+	lcd.clear();
+	lcd.home();
+	lcd.print("Set Peak (C):");
+	lcd.print(temps[3]);
+	lcd.setCursor(0, 1);
+	lcd.print("Act Peak (C):");
+	lcd.print(round(maxTemp));
+	boolean selected = false;
+	while ( !selected )
+	{
+		selected = btn.waitForButton();
+	}
+}
+
+// Waits until the user presses SELECT button to start the reflow
+//  	oven heating
+void ReflowControl::waitForStart()
+{
+	lcd.clear();
+	lcd.home();
+	lcd.print("Press SELECT");
+	lcd.setCursor(0, 1);
+	lcd.print("to start");
+	lcd.home();
+	byte selected = btn.waitForButton();
+	while ( !selected )
+	{
+		selected = btn.waitForButton();
 	}
 }
 
@@ -70,6 +113,8 @@ void ReflowControl::initPID()
 {
 	// PID
 	myPID.SetOutputLimits(0, WINDOW_SIZE); // set bounds on pidOutput
+	myPID.SetSampleTime(WINDOW_SIZE); // don't need to calculate output
+	                                  // until next window
 	myPID.SetMode(AUTOMATIC); // turn on the PID
 	// Time references
 	windowStartTime = millis(); // dynamic - updated after each time window
@@ -100,10 +145,9 @@ void ReflowControl::printDisplay()
 	lcd.noBlink();
 	lcd.clear();
 	lcd.home();
-	lcd.setCursor(14, 0);
-	lcd.print("S");
+	lcd.print("Time Rem (s):");
 	lcd.setCursor(0, 1);
-	lcd.print("Temp:");
+	lcd.print("Temp (C):     S");
 	lcd.home();
 }
 
@@ -126,6 +170,7 @@ byte ReflowControl::operateStage( byte stageNumber )
 	float rate = getSlope(stageStartTime, stageEndTime,
 	                      stageStartTemp, stageEndTemp);
 	                      // degrees / second
+	int remainder = 1000;
 	while ( stageTimeLeft > 0 ) // not done yet with this stage
 	{
 		// update current temp, set point, and overall time remaining
@@ -135,6 +180,8 @@ byte ReflowControl::operateStage( byte stageNumber )
 		// update LCD with current temp and time remaining
 		displayInfo(toSeconds(overallTimeLeft), 3, TIME_COL, TIME_ROW);
 		displayInfo(currentTemp, 3, TEMP_COL, TEMP_ROW);
+		// take a sample point every second for statistical analysis
+		// remainder = sampleTemp(remainder);
 		// find out how much time is left in stage (ms)
 		stageTimeLeft = getTimeLeft(stageEndTime);
 	}
@@ -179,17 +226,20 @@ int ReflowControl::toSeconds( long time )
 void ReflowControl::updateInfo( float rate, long stageStartTime,
                                 long stageStartTemp )
 {
-	updateCurrentTemp();
+	maxTemp = updateCurrentTemp(maxTemp);
 	updateSetPoint(rate, stageStartTime, stageStartTemp);
 	overallTimeLeft = getTimeLeft(overallEndTime);
 }
 
 // Reads in the data from the thermocouple and converts it to
 //  	temperature in degrees celsius
-float ReflowControl::updateCurrentTemp()
+// TODO: get actual conversion
+float ReflowControl::updateCurrentTemp( float maxTemp )
 {
 	int sensorValue = analogRead(READ_PIN);
-	return map(sensorValue, 0, 1023, RANGE_LOW, RANGE_HIGH);
+	currentTemp = map(sensorValue, 0, 1023, RANGE_LOW, RANGE_HIGH);
+	if ( currentTemp > maxTemp ) return currentTemp;
+	else return maxTemp;
 }
 
 // Updates the set point based on interpolation between the stage's two
@@ -217,6 +267,20 @@ void ReflowControl::updateHeater( float rate, long stageStartTime)
 	if ( pidOutput > (now - windowStartTime) ) digitalWrite(HEATER_PIN, HIGH);
 	else digitalWrite(HEATER_PIN, LOW);
 }
+
+/*
+int ReflowControl::sampleTemp( int previousRemainder )
+{
+	long overallTimeElapsed = getTimeElapsed(overallStartTime);
+	int thisRemainder = (int)(overallTimeElapsed % 1000);
+	if ( thisRemainder < previousRemainder )
+	{
+		tempSamples[sampleIndex] = (int)currentTemp;
+		sampleIndex++;
+	}
+	return thisRemainder;
+}
+*/
 
 // not used yet
 byte ReflowControl::checkLimits( float tempValue, int tempMin, int tempMax )

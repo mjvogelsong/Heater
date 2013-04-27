@@ -14,6 +14,7 @@ double setPoint; // dynamic set point
 PID myPID(&currentTemp, &pidOutput, &setPoint, KP, KI, KD, DIRECT);
 int times[5];
 int temps[5];
+//int tempSamples[250];
 
 // Debugging
 #define DEBUG 1
@@ -43,6 +44,17 @@ void loop()
     DEBUG_PRINT(temps[i]);
   }
   rCont.main();
-  delay(4000);
   DEBUG_PRINT("");
+  lcd.clear();
+  lcd.print("DONE!");
+  delay(3000);
+  DEBUG_PRINT(rCont.maxTemp);
+  /*
+  for ( int i = 0; i < times[4]; i++ )
+  {
+    Serial.print(i);
+    Serial.print(".  ");
+    DEBUG_PRINT(tempSamples[i]);
+  }
+  */
 }

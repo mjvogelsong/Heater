@@ -176,7 +176,7 @@ int CurveInput::getTimePoint( int index )
 	initLCD(&col, &row);
 	lcd.print("Enter Time ");
 	lcd.print(index);
-	lcd.print(":");
+	lcd.print(" (s)");
 	lcd.setCursor(0, 1);
 	byte buttonID = NONE;
 	int thisTime = times[index]; // scoping current time
@@ -211,7 +211,7 @@ int CurveInput::getTempPoint( int index )
 	initLCD(&col, &row);
 	lcd.print("Enter Temp ");
 	lcd.print(index);
-	lcd.print(":");
+	lcd.print(" (C)");
 	lcd.setCursor(0, 1);
 	byte buttonID = NONE;
 	int thisTemp = temps[index]; // scoping

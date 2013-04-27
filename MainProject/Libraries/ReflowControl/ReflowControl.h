@@ -18,7 +18,7 @@
 #define RANGE_HIGH 305
 
 // Timing
-#define BLINK_TIME   200
+#define BLINK_TIME   500
 
 // Errors
 #define TOO_HIGH 1
@@ -34,12 +34,13 @@
 #define KD 0.1
 #define WINDOW_SIZE 500
 
-#define TIME_COL 0
+// LCD Display locations
+#define TIME_COL 13
 #define TIME_ROW 0
-#define TEMP_COL 7
+#define TEMP_COL 9
 #define TEMP_ROW 1
 #define STAGE_COL 15
-#define STAGE_ROW 0
+#define STAGE_ROW 1
 
 class ReflowControl
 {
@@ -50,9 +51,11 @@ class ReflowControl
 		
 		// Variables
 		byte danger; // used to signal dangerous temperatures
+		float maxTemp;
 		
 	private:
 		// Functions
+		void waitForStart();
 		void initPID();
 		long getTimeLeft( long endTime );
 		long getTimeElapsed( long startTime );
@@ -65,18 +68,20 @@ class ReflowControl
 		int toSeconds( long time );
 		void updateInfo( float rate, long stageStartTime,
 		                 long stageStartTemp );
-		float updateCurrentTemp();
+		float updateCurrentTemp( float maxTemp );
 		void updateSetPoint( float rate, long stageStartTime,
                              long stageStartTemp );
 		void updateHeater( float rate, long stageStartTime);
 		byte checkLimits( float tempValue, int tempMin, int tempMax );
 		void displayWarning( byte typeError );
+		//int sampleTemp( int remainder );
 		// Variables
 		byte stageNumber;
 		long windowStartTime;
 		long overallStartTime;
 		long overallEndTime;
 		long overallTimeLeft;
+		//int sampleIndex;
 };
 
 #endif
