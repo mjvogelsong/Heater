@@ -13,6 +13,8 @@ Functions:
 #include <LiquidCrystal.h>
 #include <ButtonIO.h>
 #include <CurveInput.h>
+#include <ReflowControl.h>
+#include <PID_v1.h>
 
 // ~~~~~~~~~~~~~~~~ Debugging ~~~~~~~~~~~~~~~~~
 #define DEBUG 1
@@ -25,42 +27,30 @@ Functions:
 // ~~~~~~~~~~~~~~~ Global Initialization ~~~~~~~~~~~~~~~~~
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 ButtonIO btn(0);
-CurveInput curvIn;
-int times[5]; // will hold time points to define the stages
-int temps[5]; // will hold temperature points
+CurveInput cinp;
+ReflowControl rCont;
+double currentTemp; // dynamic current temperature
+double pidOutput; // PID output
+double setPoint; // dynamic set point
+PID myPID(&currentTemp, &pidOutput, &setPoint, KP, KI, KD, DIRECT);
+int times[5];
+int temps[5];
 
 // ~~~~~~~~~~~~~~~ Setup ~~~~~~~~~~~~~~~~~
 void setup()
 {
-  
+	Serial.begin(9600);
+	lcd.begin(16, 2);
+	lcd.clear();
 }
 
 // ~~~~~~~~~~~~~~~ Main Loop ~~~~~~~~~~~~~~~~~
 void loop()
 {
 	// TODO: improve
-	curvIn.main()
+	curvIn.main();
+	rCont.main();
 	// TODO: implement
-	controlHeater();
-	{
-		while ((stageCounter <= maxStage) && !error)
-		{
-			calculateStageInfo();
-			while (secondCounter <= maxSeconds)
-			{
-				loopBegin = millis();
-				getCurrentStats();
-				printCurrentStats();
-				getModelTemp();
-				controlHeater();
-				checkUnsafe();
-				secondCounter = secondCounter + 1;
-				delay(1000 - (millis() - loopBegin));
-			}
-			stageCounter = stageCounter + 1;
-			checkError();
-		}
-	}
 	endReport()
 	{
 		if (error)

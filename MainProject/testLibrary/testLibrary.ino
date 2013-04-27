@@ -42,6 +42,7 @@ void loop()
   {
     DEBUG_PRINT(temps[i]);
   }
+  rCont.main();
   delay(4000);
   DEBUG_PRINT("");
 }
