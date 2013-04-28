@@ -16,6 +16,7 @@
 #define LOWER_LIM 0
 #define RANGE_LOW 20
 #define RANGE_HIGH 305
+#define ROOM_TEMP_ADC 20
 
 // Timing
 #define BLINK_TIME   500

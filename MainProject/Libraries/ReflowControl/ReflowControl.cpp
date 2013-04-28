@@ -66,6 +66,7 @@ void ReflowControl::main()
 	{
 		stageNumber = operateStage(stageNumber);
 	}
+	digitalWrite(HEATER_PIN, LOW);
 	lcd.clear();
 	lcd.home();
 	lcd.print("     DONE!");
@@ -184,6 +185,14 @@ byte ReflowControl::operateStage( byte stageNumber )
 		// remainder = sampleTemp(remainder);
 		// find out how much time is left in stage (ms)
 		stageTimeLeft = getTimeLeft(stageEndTime);
+		Serial.print("Temp ");
+		Serial.print(round(currentTemp));
+		Serial.print(";  Set ");
+		Serial.print(setPoint);
+		Serial.print(";  Out ");
+		Serial.print(pidOutput);
+		Serial.print(";  Time ");
+		Serial.println(((double)(getTimeLeft(overallEndTime)))/1000);
 	}
 	stageNumber++; // next stage
 	return stageNumber;
@@ -207,8 +216,15 @@ float ReflowControl::getSlope( long stageStartTime, long stageEndTime,
                                int stageStartTemp, int stageEndTemp )
 {
 	// slope = delta(temp) / delta(time)
-	float slope = ( stageEndTemp - stageStartTemp ) /
-	        ( stageEndTime - stageStartTime );
+	float slope = ((float)( stageEndTemp - stageStartTemp )) /
+	        ((float)(( stageEndTime - stageStartTime ) / 1000));
+	/*
+	Serial.println(stageEndTemp);
+	Serial.println(stageStartTemp);
+	Serial.println(stageEndTime);
+	Serial.println(stageStartTime);
+	Serial.println(slope);
+	*/
 	return slope;
 }
 
@@ -227,6 +243,14 @@ void ReflowControl::updateInfo( float rate, long stageStartTime,
                                 long stageStartTemp )
 {
 	maxTemp = updateCurrentTemp(maxTemp);
+	/*
+	Serial.print("In updateInfo: ");
+	Serial.print(setPoint);
+	Serial.print(" ");
+	Serial.print(rate);
+	Serial.print(" ");
+	Serial.println(stageStartTime);
+	*/
 	updateSetPoint(rate, stageStartTime, stageStartTemp);
 	overallTimeLeft = getTimeLeft(overallEndTime);
 }
@@ -237,7 +261,9 @@ void ReflowControl::updateInfo( float rate, long stageStartTime,
 float ReflowControl::updateCurrentTemp( float maxTemp )
 {
 	int sensorValue = analogRead(READ_PIN);
-	currentTemp = map(sensorValue, 0, 1023, RANGE_LOW, RANGE_HIGH);
+	int voltage = map(sensorValue, 0, 1023, 0, 5000);
+	int roomTempmV = map(ROOM_TEMP_ADC, 0, 1023, 0, 5000);
+	currentTemp = (((double)(voltage - roomTempmV))/5) + 25;
 	if ( currentTemp > maxTemp ) return currentTemp;
 	else return maxTemp;
 }
@@ -248,7 +274,11 @@ float ReflowControl::updateCurrentTemp( float maxTemp )
 void ReflowControl::updateSetPoint( float rate, long stageStartTime,
                                    long stageStartTemp )
 {
-	setPoint = ( rate * ( millis() - stageStartTime ) ) + stageStartTemp;
+	setPoint = ( (double)rate * (double)( (millis() - stageStartTime)/1000 ) ) + (double)stageStartTemp;
+	/*
+	Serial.print("In updateSetPoint: ");
+	Serial.println(setPoint);
+	*/
 }
 
 // Runs the "slow PWM" technique of PID control for a relay.
