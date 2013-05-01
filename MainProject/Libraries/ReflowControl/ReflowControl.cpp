@@ -185,14 +185,14 @@ byte ReflowControl::operateStage( byte stageNumber )
 		// remainder = sampleTemp(remainder);
 		// find out how much time is left in stage (ms)
 		stageTimeLeft = getTimeLeft(stageEndTime);
-		Serial.print("Temp ");
+		//Serial.print("Temp ");
 		Serial.print(round(currentTemp));
-		Serial.print(";  Set ");
-		Serial.print(setPoint);
-		Serial.print(";  Out ");
-		Serial.print(pidOutput);
-		Serial.print(";  Time ");
-		Serial.println(((double)(getTimeLeft(overallEndTime)))/1000);
+		//Serial.print(";  Set ");
+		//Serial.print(setPoint);
+		//Serial.print(";  Out ");
+		//Serial.print(pidOutput);
+		//Serial.print(";  Time ");
+		Serial.println(getTimeElapsed(overallStartTime));
 	}
 	stageNumber++; // next stage
 	return stageNumber;
