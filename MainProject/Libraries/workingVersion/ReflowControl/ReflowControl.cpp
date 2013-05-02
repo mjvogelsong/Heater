@@ -168,6 +168,7 @@ byte ReflowControl::operateStage( byte stageNumber )
 		// update LCD with current temp and time remaining
 		displayInfo(toSeconds(overallTimeLeft), 3, TIME_COL, TIME_ROW);
 		displayInfo(currentTemp, 3, TEMP_COL, TEMP_ROW);
+		delay(5);
 		// take a sample point every second for statistical analysis
 		// remainder = sampleTemp(remainder);
 		// find out how much time is left in stage (ms)

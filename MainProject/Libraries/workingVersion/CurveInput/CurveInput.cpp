@@ -40,16 +40,6 @@ void CurveInput::main()
 	sendTimesAndTemps();
 }
 
-// Simple clearing of LCD screen while simultaneously
-//  	updating the col and row trackers
-//  	col, row: pointers to locations on LCD
-void CurveInput::initLCD( byte* col, byte* row )
-{
-	lcd.clear();
-	*col = 0; *row = 0;
-	lcd.setCursor(*col, *row);
-}
-
 // Allows the user to choose whether they want to use
 //		a default heating curve or define their own curve
 // Returns the user's choice
@@ -93,6 +83,16 @@ void CurveInput::printCurveChoices()
 	lcd.setCursor(0, 0);
 }
 
+// Simple clearing of LCD screen while simultaneously
+//  	updating the col and row trackers
+//  	col, row: pointers to locations on LCD
+void CurveInput::initLCD( byte* col, byte* row )
+{
+	lcd.clear();
+	*col = 0; *row = 0;
+	lcd.setCursor(*col, *row);
+}
+
 // Master function for obtaining the information needed
 //  	to define the reflow curve
 //  	choice: 0 - default
@@ -103,13 +103,13 @@ void CurveInput::loadCurve( boolean choice )
 	{
 		loadDefault(); // get the default times and temps
 		initLCD(&col, &row);
-		lcd.print("Loaded Default");
+		//lcd.print("Loaded Default");
 	}
 	else
 	{
 		loadUserCurve(); // get the user's times and temps
 		initLCD(&col, &row);
-		lcd.print("Loaded User");
+		//lcd.print("Loaded User");
 	}
 }
 
@@ -180,13 +180,13 @@ int CurveInput::getTimePoint( int index )
 	lcd.print(" (s)");
 	lcd.setCursor(0, 1);
 	byte buttonID = NONE;
+	int lowerLimit, upperLimit;
+	times[index] = getTimeLimits(index, &lowerLimit, &upperLimit);
 	int thisTime = times[index]; // scoping current time
 	lcd.print(thisTime);
 	col = 0; row = 1;
 	lcd.setCursor(col, row);
 	delay(SELECT_DURATION);
-	int lowerLimit, upperLimit;
-	getTimeLimits(index, &lowerLimit, &upperLimit);
 	while ( buttonID != SELECT ) // any button other than SELECT
 	{
 		buttonID = btn.waitForButton();
@@ -202,7 +202,10 @@ int CurveInput::getTimeLimits( int index, int* lowerLimit,
                                int* upperLimit )
 {
 	*lowerLimit = times[index-1] + 1;
-	*upperLimit = *lowerLimit + 120;
+	*upperLimit = *lowerLimit + TIME_RANGE;
+	int suggestedTime = *lowerLimit + (int)(.75*TIME_RANGE);
+	//Serial.println(suggestedTime);
+	return suggestedTime;
 }
 
 // Allows user to change and select the temperature point
@@ -215,6 +218,8 @@ int CurveInput::getTempPoint( int index )
 	lcd.print(" (C)");
 	lcd.setCursor(0, 1);
 	byte buttonID = NONE;
+	int lowerLimit, upperLimit;
+	temps[index] = getTempLimits(index, &lowerLimit, &upperLimit);
 	int thisTemp = temps[index]; // scoping
 	lcd.print(thisTemp);
 	col = 0; row = 1;
@@ -223,12 +228,55 @@ int CurveInput::getTempPoint( int index )
 	while ( buttonID != SELECT ) // any button other than SELECT
 	{
 		buttonID = btn.waitForButton();
-		// TODO: index-specific bounds
 		thisTemp = btn.actionIncDec(buttonID, TIME_TEMP_DURATION,
-		                            col, row, thisTemp, 3, 25, 300);
+		                            col, row, thisTemp, 3,
+									lowerLimit, upperLimit);
 		                            // user adjusts temperature
 	}
 	return thisTemp;
+}
+
+int CurveInput::getTempLimits( int index, int* lowerLimit,
+                               int* upperLimit )
+{
+	float minRate, maxRate, suggestRate;
+	if ((index == 1) || (index == 3))
+	{
+		minRate = .75; maxRate = 3.25; suggestRate = 1;
+	}
+	else if ( index == 2 )
+	{
+		minRate == -.5; maxRate = .5; suggestRate = 0;
+	}
+	else
+	{
+		minRate = -6; maxRate = -1; suggestRate = -2;
+	}
+	*lowerLimit = projectTemp(times[index-1], times[index],
+                              temps[index-1], minRate);
+	*upperLimit = projectTemp(times[index-1], times[index],
+                              temps[index-1], maxRate);
+	int suggestedTemp = projectTemp(times[index-1], times[index],
+                                    temps[index-1], suggestRate);
+	/*
+	Serial.println(index);
+	Serial.println(minRate);
+	Serial.println(maxRate);
+	Serial.println(suggestRate);
+	Serial.println(*lowerLimit);
+	Serial.println(*upperLimit);
+	Serial.println(suggestedTemp);
+	*/
+	return suggestedTemp;
+}
+
+int CurveInput::projectTemp( int previousTime, int currentTime,
+	                         int previousTemp, float rate )
+{
+	int temp = previousTemp + round(((float)( currentTime - previousTime ))*rate);
+	if ( temp > MAX_TEMP ) temp = MAX_TEMP;
+	else if ( temp < MIN_TEMP ) temp = MIN_TEMP;
+	return temp;
 }
 
 void CurveInput::sendTimesAndTemps()

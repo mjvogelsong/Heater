@@ -15,6 +15,10 @@
 #define SELECT_DURATION 500
 #define TIME_TEMP_DURATION 80
 
+#define TIME_RANGE 120
+#define MAX_TEMP 300
+#define MIN_TEMP 20
+
 class CurveInput
 {
 	public:
@@ -38,6 +42,10 @@ class CurveInput
 		int getTempPoint( int index );
 		int getTimeLimits( int index, int* lowerLimit,
 		                   int* upperLimit );
+		int getTempLimits( int index, int* lowerLimit,
+		                   int* upperLimit );
+		int projectTemp( int previousTime, int currentTime,
+	                     int previousTemp, float rate );
 		void sendTimesAndTemps();
 		// Variables
 		byte col;
