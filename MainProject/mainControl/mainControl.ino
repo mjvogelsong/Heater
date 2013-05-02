@@ -16,14 +16,6 @@ Functions:
 #include <ReflowControl.h>
 #include <PID_v1.h>
 
-// ~~~~~~~~~~~~~~~~ Debugging ~~~~~~~~~~~~~~~~~
-#define DEBUG 1
-#ifdef DEBUG
-  #define DEBUG_PRINT(x) Serial.println(x)
-#else
-  #define DEBUG_PRINT(x)
-#endif
-
 // ~~~~~~~~~~~~~~~ Global Initialization ~~~~~~~~~~~~~~~~~
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 ButtonIO btn(0);
@@ -48,24 +40,20 @@ void setup()
 void loop()
 {
 	// TODO: improve
-	curvIn.main();
-	rCont.main();
-	// TODO: implement
-	endReport()
+	cinp.main();
+	Serial.println("Times");
+	for ( int i = 0; i < 5; i++ )
 	{
-		if (error)
-		{
-			printError();
-		}
-		else
-		{
-			printDone();
-			printSimpleResults();
-			if (askExportStats())
-			{
-				exportStats();
-			}
-		}
+		Serial.println(times[i]);
 	}
-	finish();
+	Serial.println("Temps");
+	for ( int i = 0; i < 5; i++ )
+	{
+		Serial.println(temps[i]);
+	}
+	rCont.main();
+	Serial.println("");
+	lcd.clear();
+	lcd.print("DONE!");
+	delay(3000);
 }
