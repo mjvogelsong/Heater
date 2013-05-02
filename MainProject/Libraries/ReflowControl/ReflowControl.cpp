@@ -187,6 +187,7 @@ byte ReflowControl::operateStage( byte stageNumber )
 		stageTimeLeft = getTimeLeft(stageEndTime);
 		//Serial.print("Temp ");
 		Serial.print(round(currentTemp));
+		Serial.print(" ");
 		//Serial.print(";  Set ");
 		//Serial.print(setPoint);
 		//Serial.print(";  Out ");

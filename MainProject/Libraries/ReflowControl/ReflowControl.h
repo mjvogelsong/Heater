@@ -16,7 +16,7 @@
 #define LOWER_LIM 0
 #define RANGE_LOW 20
 #define RANGE_HIGH 305
-#define ROOM_TEMP_ADC 20
+#define ROOM_TEMP_ADC 27
 
 // Timing
 #define BLINK_TIME   500
@@ -30,9 +30,9 @@
 #define HEATER_PIN  2
 
 // PID Tuning
-#define KP 5
-#define KI 2
-#define KD 0.1
+#define KP 10
+#define KI 1
+#define KD 5
 #define WINDOW_SIZE 500
 
 // LCD Display locations

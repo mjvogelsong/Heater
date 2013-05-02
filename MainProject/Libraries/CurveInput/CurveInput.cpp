@@ -122,10 +122,10 @@ void CurveInput::loadDefault()
 	temps[4] = 200; // cooled
 	
 	times[0] = 0;
-	times[1] = getTime(1, 2); // 1-3 deg/s
-	times[2] = times[1] + 90; // soak duration: 90 s
-	times[3] = getTime(3, 2); // 1-3 deg/s
-	times[4] = getTime(4, -6); // -6 deg/s
+	times[1] = getTime(1, 1); // 1-3 deg/s
+	times[2] = times[1] + 120; // soak duration: 90 s
+	times[3] = getTime(3, 1); // 1-3 deg/s
+	times[4] = getTime(4, -2); // -6 deg/s
 }
 
 // Calculates next time point based on the temperature change
