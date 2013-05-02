@@ -36,7 +36,7 @@ fscanf(arduino,'%s');
 % loads the input temperatures
 counter = counter + 1;
 while ( counter < 12 )
-    inputTemps(counter - 6) = fscanf(arduino, '%d');
+    inputTemps(counter - 6) = fscanf(arduino, '%f');
     counter=counter+1;
 end    
 

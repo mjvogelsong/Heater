@@ -27,6 +27,8 @@ double setPoint; // dynamic set point
 PID myPID(&currentTemp, &pidOutput, &setPoint, KP, KI, KD, DIRECT);
 int times[5];
 int temps[5];
+int smoothTimes[9];
+int smoothTemps[9];
 
 // ~~~~~~~~~~~~~~~ Setup ~~~~~~~~~~~~~~~~~
 void setup()

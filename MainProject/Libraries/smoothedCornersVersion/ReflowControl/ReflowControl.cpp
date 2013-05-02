@@ -20,6 +20,8 @@ extern double pidOutput;
 extern double setPoint;
 extern int times[5];
 extern int temps[5];
+extern int smoothTimes[9];
+extern int smoothTemps[9];
 //extern int tempSamples[250];
 
 // ********** Required in Sketch **********
@@ -150,20 +152,20 @@ byte ReflowControl::operateStage( byte stageNumber )
 	                                        // to the LCD
 	// Stage-specific time and temp endpoints (milliseconds)
 	long stageStartTime = overallStartTime + ( 1000 * (long)times[stageNumber-1] );
-	int  stageStartTemp = temps[stageNumber-1];
+	int stageStartTemp = temps[stageNumber-1];
 	long stageEndTime = overallStartTime + ( 1000 * (long)times[stageNumber] );
-	int  stageEndTemp = temps[stageNumber];
+	int stageEndTemp = temps[stageNumber];
 	long stageTimeLeft = getTimeLeft(stageEndTime); // time remaining in stage
 	float rate = getSlope(stageStartTime, stageEndTime,
 	                      stageStartTemp, stageEndTemp);
 	                      // degrees / second
-	int remainder = 1000;
+	//int remainder = 1000;
 	while ( stageTimeLeft > 0 ) // not done yet with this stage
 	{
 		// update current temp, set point, and overall time remaining
 		updateInfo(rate, stageStartTime, stageStartTemp);
 		// update PID control of relay
-		updateHeater(rate, stageNumber, stageStartTime);
+		updateHeater(rate, stageStartTime);
 		// update LCD with current temp and time remaining
 		displayInfo(toSeconds(overallTimeLeft), 3, TIME_COL, TIME_ROW);
 		displayInfo(currentTemp, 3, TEMP_COL, TEMP_ROW);
@@ -227,7 +229,7 @@ int ReflowControl::toSeconds( long time )
 //  	rate: heating rate (deg/s)
 //  	stageStartTime, stageStartTemp: starting point
 void ReflowControl::updateInfo( float rate, long stageStartTime,
-                                long stageStartTemp )
+                                int stageStartTemp )
 {
 	maxTemp = updateCurrentTemp(maxTemp);
 	/*
@@ -259,7 +261,7 @@ float ReflowControl::updateCurrentTemp( float maxTemp )
 //  	endpoints.
 // Linear Model: temp = slope * time + tempOffset
 void ReflowControl::updateSetPoint( float rate, long stageStartTime,
-                                   long stageStartTemp )
+                                   int stageStartTemp )
 {
 	setPoint = ( (double)rate * (double)( (millis() - stageStartTime)/1000 ) ) + (double)stageStartTemp;
 	/*
@@ -274,8 +276,7 @@ void ReflowControl::updateSetPoint( float rate, long stageStartTime,
 //  	value is produced when the error is larger, and this will
 //  	correspond to a greater portion of the time window being
 //  	spent in the ON position
-void ReflowControl::updateHeater( float rate, byte stageNumber,
-                                  long stageStartTime)
+void ReflowControl::updateHeater( float rate, long stageStartTime)
 {
 	myPID.Compute(); // calculate an output based on error
 	long now = millis();
