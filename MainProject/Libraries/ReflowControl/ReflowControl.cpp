@@ -58,6 +58,7 @@ ReflowControl::ReflowControl()
 void ReflowControl::main()
 {
 	waitForStart();
+	prepare();
 	initPID(); // initialize PID controller
 	byte stageNumber = 1; // First stage: ramp
 	printDisplay(); // prints template for displaying
@@ -66,29 +67,7 @@ void ReflowControl::main()
 	{
 		stageNumber = operateStage(stageNumber);
 	}
-	digitalWrite(HEATER_PIN, LOW);
-	lcd.clear();
-	lcd.home();
-	lcd.print("     DONE!");
-	for(int count = 0; count < 5; count++)
-	{	// Blink off and on
-		lcd.noDisplay();
-		delay(BLINK_TIME);
-		lcd.display();
-		delay(BLINK_TIME);
-	}
-	lcd.clear();
-	lcd.home();
-	lcd.print("Set Peak (C):");
-	lcd.print(temps[3]);
-	lcd.setCursor(0, 1);
-	lcd.print("Act Peak (C):");
-	lcd.print(round(maxTemp));
-	boolean selected = false;
-	while ( !selected )
-	{
-		selected = btn.waitForButton();
-	}
+	finish();
 }
 
 // Waits until the user presses SELECT button to start the reflow
@@ -99,13 +78,20 @@ void ReflowControl::waitForStart()
 	lcd.home();
 	lcd.print("Press SELECT");
 	lcd.setCursor(0, 1);
-	lcd.print("to start");
+	lcd.print("to prepare oven");
 	lcd.home();
-	byte selected = btn.waitForButton();
-	while ( !selected )
-	{
-		selected = btn.waitForButton();
-	}
+	waitForSelect();
+}
+
+void ReflowControl::prepare()
+{
+	lcd.clear();
+	lcd.home();
+	lcd.print("Preparing");
+	lcd.setCursor(0, 1);
+	lcd.print("Heating Element");
+	digitalWrite(HEATER_PIN, HIGH);
+	delay(PREPARE_TIME);
 }
 
 // Initializes the PID controller and calculates important
@@ -177,7 +163,7 @@ byte ReflowControl::operateStage( byte stageNumber )
 		// update current temp, set point, and overall time remaining
 		updateInfo(rate, stageStartTime, stageStartTemp);
 		// update PID control of relay
-		updateHeater(rate, stageStartTime);
+		updateHeater(rate, stageNumber, stageStartTime);
 		// update LCD with current temp and time remaining
 		displayInfo(toSeconds(overallTimeLeft), 3, TIME_COL, TIME_ROW);
 		displayInfo(currentTemp, 3, TEMP_COL, TEMP_ROW);
@@ -288,15 +274,27 @@ void ReflowControl::updateSetPoint( float rate, long stageStartTime,
 //  	value is produced when the error is larger, and this will
 //  	correspond to a greater portion of the time window being
 //  	spent in the ON position
-void ReflowControl::updateHeater( float rate, long stageStartTime)
+void ReflowControl::updateHeater( float rate, byte stageNumber,
+                                  long stageStartTime)
 {
 	myPID.Compute(); // calculate an output based on error
 	long now = millis();
 	// Slide the time window over?
 	if ( (now - windowStartTime) > WINDOW_SIZE ) windowStartTime += WINDOW_SIZE;
 	// Relay ON for portion of window, OFF for remainder
+	//if ( stageEndTime - now > APPROACH_TIME )
+	//{
 	if ( pidOutput > (now - windowStartTime) ) digitalWrite(HEATER_PIN, HIGH);
 	else digitalWrite(HEATER_PIN, LOW);
+	//}
+	/*
+	else
+	{
+		if ( stageNumber == 1 ) digitalWrite(HEATER_PIN, LOW);
+		else if ( stageNumber == 2 ) digitalWrite(HEATER_PIN, HIGH);
+		pause(5);
+	}
+	*/
 }
 
 /*
@@ -348,5 +346,37 @@ void ReflowControl::displayWarning( byte typeError ) // TODO: choose string to p
 		delay(BLINK_TIME);
 		lcd.display();
 		delay(BLINK_TIME);
+	}
+}
+
+void ReflowControl::finish()
+{
+	digitalWrite(HEATER_PIN, LOW);
+	lcd.clear();
+	lcd.home();
+	lcd.print("     DONE!");
+	for(int count = 0; count < 5; count++)
+	{	// Blink off and on
+		lcd.noDisplay();
+		delay(BLINK_TIME);
+		lcd.display();
+		delay(BLINK_TIME);
+	}
+	lcd.clear();
+	lcd.home();
+	lcd.print("Set Peak (C):");
+	lcd.print(temps[3]);
+	lcd.setCursor(0, 1);
+	lcd.print("Act Peak (C):");
+	lcd.print(round(maxTemp));
+	waitForSelect();
+}
+
+void ReflowControl::waitForSelect()
+{
+	boolean selected = false;
+	while ( !selected )
+	{
+		selected = btn.waitForButton();
 	}
 }

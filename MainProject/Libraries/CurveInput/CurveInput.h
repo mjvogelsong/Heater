@@ -38,6 +38,7 @@ class CurveInput
 		int getTempPoint( int index );
 		int getTimeLimits( int index, int* lowerLimit,
 		                   int* upperLimit );
+		void sendTimesAndTemps();
 		// Variables
 		byte col;
 		byte row;

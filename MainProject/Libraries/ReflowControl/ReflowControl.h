@@ -20,6 +20,8 @@
 
 // Timing
 #define BLINK_TIME   500
+#define PREPARE_TIME 5000
+#define APPROACH_TIME 10000
 
 // Errors
 #define TOO_HIGH 1
@@ -57,6 +59,7 @@ class ReflowControl
 	private:
 		// Functions
 		void waitForStart();
+		void prepare();
 		void initPID();
 		long getTimeLeft( long endTime );
 		long getTimeElapsed( long startTime );
@@ -72,9 +75,12 @@ class ReflowControl
 		float updateCurrentTemp( float maxTemp );
 		void updateSetPoint( float rate, long stageStartTime,
                              long stageStartTemp );
-		void updateHeater( float rate, long stageStartTime);
+		void updateHeater( float rate, byte stageNumber,
+		                   long stageStartTime);
 		byte checkLimits( float tempValue, int tempMin, int tempMax );
 		void displayWarning( byte typeError );
+		void finish();
+		void waitForSelect();
 		//int sampleTemp( int remainder );
 		// Variables
 		byte stageNumber;

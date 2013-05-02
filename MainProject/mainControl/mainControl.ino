@@ -39,21 +39,6 @@ void setup()
 // ~~~~~~~~~~~~~~~ Main Loop ~~~~~~~~~~~~~~~~~
 void loop()
 {
-	// TODO: improve
 	cinp.main();
-	Serial.println("Times");
-	for ( int i = 0; i < 5; i++ )
-	{
-		Serial.println(times[i]);
-	}
-	Serial.println("Temps");
-	for ( int i = 0; i < 5; i++ )
-	{
-		Serial.println(temps[i]);
-	}
 	rCont.main();
-	Serial.println("");
-	lcd.clear();
-	lcd.print("DONE!");
-	delay(3000);
 }

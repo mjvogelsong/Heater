@@ -37,6 +37,7 @@ void CurveInput::main()
 {
 	boolean choice = chooseCurve();
 	loadCurve(choice);
+	sendTimesAndTemps();
 }
 
 // Simple clearing of LCD screen while simultaneously
@@ -228,4 +229,18 @@ int CurveInput::getTempPoint( int index )
 		                            // user adjusts temperature
 	}
 	return thisTemp;
+}
+
+void CurveInput::sendTimesAndTemps()
+{
+	Serial.println("Times");
+	for ( int i = 0; i < 5; i++ )
+	{
+		Serial.println(times[i]);
+	}
+	Serial.println("Temps");
+	for ( int i = 0; i < 5; i++ )
+	{
+		Serial.println(temps[i]);
+	}
 }
