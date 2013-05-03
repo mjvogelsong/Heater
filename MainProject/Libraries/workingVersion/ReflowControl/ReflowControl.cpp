@@ -2,6 +2,11 @@
 	ReflowControl.cpp - Library (Source) for Reflow Oven Control.
 	Michael Vogelsong
 	Virginia Chen
+	Allison Finley
+	Khanh Bui
+	
+	** PID Library found at:
+	https://github.com/br3ttb/Arduino-PID-Library/tree/master/PID_v1
 */
 
 // ********** Library Dependencies **********
@@ -21,7 +26,6 @@ extern double setPoint;
 extern int times[5];
 extern int temps[5];
 extern byte error;
-//extern int tempSamples[250];
 
 // ********** Required in Sketch **********
 // #include "LiquidCrystal.h"
@@ -84,6 +88,7 @@ void ReflowControl::waitForStart()
 	waitForSelect();
 }
 
+// Preheats the oven
 void ReflowControl::prepare()
 {
 	lcd.clear();
@@ -147,30 +152,36 @@ void ReflowControl::printDisplay()
 //  		(4 - cool)
 byte ReflowControl::operateStage( byte stageNumber )
 {
-	displayInfo(stageNumber, 1, STAGE_COL, STAGE_ROW); // send current stage
-	                                        // to the LCD
+	// send stageNumber to LCD
+	displayInfo(stageNumber, 1, STAGE_COL, STAGE_ROW);
 	// Stage-specific time and temp endpoints (milliseconds)
 	long stageStartTime = overallStartTime + ( 1000 * (long)times[stageNumber-1] );
 	int  stageStartTemp = temps[stageNumber-1];
 	long stageEndTime = overallStartTime + ( 1000 * (long)times[stageNumber] );
 	int  stageEndTemp = temps[stageNumber];
 	long stageTimeLeft = getTimeLeft(stageEndTime); // time remaining in stage
+	// get next stage's information for "peek-ahead"
 	long nextEndTime;
 	int nextEndTemp;
-	if ( stageNumber < 4 )
+	if ( stageNumber < 4 ) // no "next stage" for fourth stage
 	{
 		nextEndTime = overallStartTime + ( 1000 * (long)times[stageNumber+1] );
 		nextEndTemp = temps[stageNumber+1];
 	}
+	// find target heating rate
 	float rate = getSlope(stageStartTime, stageEndTime,
 	                      stageStartTemp, stageEndTemp);
-	                      // degrees / second
+	// adjust PID based on target rate
 	limitPID(rate);
+	// prepare loop control parameters
 	byte done = false;
 	long timeout = APPROACH_TIME;
+	// 3rd stage is hotter => need more approach time in 2nd stage
 	if ( stageNumber == 2 ) timeout = (APPROACH_TIME + 8000);
+	
 	while ( (!done) && (error == 0) )
 	{
+		// control loop
 		while ( stageTimeLeft > timeout && error == 0 )
 		{
 			// update current temp, set point, and overall time remaining
@@ -197,22 +208,25 @@ byte ReflowControl::operateStage( byte stageNumber )
 		}
 		if ( timeout == APPROACH_TIME )
 		{
-			timeout = 0;
+			timeout = 0; // next timeout when stage is finished
 			if ( stageNumber < 3 )
 			{
+				// "peek ahead" to make smooth transition to next
+				//       stage
 				rate = getSlope(stageEndTime, nextEndTime,
 							stageEndTemp, nextEndTemp);
 							// degrees / second
 				limitPID(rate);
 				lcd.setCursor(13, 1);
-				lcd.print("A");
+				lcd.print("A"); // Let user know that we're approaching
+				                // next stage
 			}
 		}
 		else 
 		{
-			done = true;
+			done = true; // stage complete
 			lcd.setCursor(13, 1);
-			btn.clearRegion(1, 13, 1);
+			btn.clearRegion(1, 13, 1); // remove "A"
 		}
 	}
 	//Serial.println("Switched Stages");
@@ -220,11 +234,17 @@ byte ReflowControl::operateStage( byte stageNumber )
 	return stageNumber;
 }
 
+// Shifts the PID output limits based on the target rate of heating
+//        i.e. if the target rate is high, the PID should have a larger
+//        output even when the error is low
 void ReflowControl::limitPID( float rate )
 {
-	int offset = (int)(rate*550);
-	int upperLim = offset + 250;
-	int lowerLim = offset - 250;
+	int offset = (int)(rate*550); // 550 experimentally determined for
+	                              // this toaster oven (could be adjusted
+								  // for other ovens)
+	int upperLim = offset + int(WINDOW_SIZE/2);
+	int lowerLim = offset - int(WINDOW_SIZE/2);
+	// clamping
 	if ( upperLim < 0 ) upperLim = 1;
 	else if ( upperLim > WINDOW_SIZE ) upperLim = WINDOW_SIZE;
 	if ( lowerLim > WINDOW_SIZE ) lowerLim = WINDOW_SIZE - 1;
@@ -298,7 +318,6 @@ void ReflowControl::updateInfo( float rate, long stageStartTime,
 
 // Reads in the data from the thermocouple and converts it to
 //  	temperature in degrees celsius
-// TODO: get actual conversion
 float ReflowControl::updateCurrentTemp( float maxTemp )
 {
 	int sensorValue = analogRead(READ_PIN);
@@ -335,20 +354,9 @@ void ReflowControl::updateHeater( float rate, byte stageNumber,
 	long now = millis();
 	// Slide the time window over?
 	if ( (now - windowStartTime) > WINDOW_SIZE ) windowStartTime += WINDOW_SIZE;
-	// Relay ON for portion of window, OFF for remainder
-	//if ( stageEndTime - now > APPROACH_TIME )
-	//{
+	// ON or OFF?
 	if ( pidOutput > (now - windowStartTime) ) digitalWrite(HEATER_PIN, HIGH);
 	else digitalWrite(HEATER_PIN, LOW);
-	//}
-	/*
-	else
-	{
-		if ( stageNumber == 1 ) digitalWrite(HEATER_PIN, LOW);
-		else if ( stageNumber == 2 ) digitalWrite(HEATER_PIN, HIGH);
-		pause(5);
-	}
-	*/
 }
 
 /*
@@ -365,7 +373,7 @@ int ReflowControl::sampleTemp( int previousRemainder )
 }
 */
 
-// not used yet
+// deprecated
 byte ReflowControl::checkLimits( float tempValue, int tempMin, int tempMax )
 {
 	if (tempValue >= tempMax) return TOO_HIGH;
@@ -373,7 +381,7 @@ byte ReflowControl::checkLimits( float tempValue, int tempMin, int tempMax )
 	else return 0; // temperature is within range
 }
 
-// not used yet
+// deprecated
 void ReflowControl::displayWarning( byte typeError ) // TODO: choose string to print
 {	
 	if (typeError == 1)	// current temp is greater than upper limit
@@ -403,6 +411,8 @@ void ReflowControl::displayWarning( byte typeError ) // TODO: choose string to p
 	}
 }
 
+// Turn the heater off and let the user know the reflow run is
+//      done (either from error or completion)
 void ReflowControl::finish()
 {
 	digitalWrite(HEATER_PIN, LOW);
@@ -413,8 +423,8 @@ void ReflowControl::finish()
 	{
 		lcd.print("Slight problem");
 		lcd.setCursor(0, 1);
-		if ( error == TOO_HIGH ) lcd.print("We're Smokin'");
-		else lcd.print("Too cold!");
+		if ( error == TOO_HIGH ) lcd.print("We're Smokin'"); // TOO HOT
+		else lcd.print("Too cold!"); // TOO COLD
 	}
 	for(int count = 0; count < 5; count++)
 	{	// Blink off and on
@@ -433,6 +443,7 @@ void ReflowControl::finish()
 	waitForSelect();
 }
 
+// Waits for the user to press select and continue
 void ReflowControl::waitForSelect()
 {
 	boolean selected = false;

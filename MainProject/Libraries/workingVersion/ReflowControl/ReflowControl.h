@@ -2,6 +2,8 @@
 	ReflowControl.h - Library (Header) for Reflow Oven Control.
 	Michael Vogelsong
 	Virginia Chen
+	Allison Finley
+	Khanh Bui
 */
 
 #ifndef ReflowControl_h
@@ -12,8 +14,6 @@
 
 // ********** Constants **********
 // Temperatures
-#define UPPER_LIM 300
-#define LOWER_LIM 0
 #define TEMP_LOW_LIMIT 0
 #define TEMP_HIGH_LIMIT 305
 #define ROOM_TEMP_ADC 32
@@ -51,7 +51,6 @@ class ReflowControl
 		// Functions
 		ReflowControl();
 		void main();
-		
 		// Variables
 		byte danger; // used to signal dangerous temperatures
 		float maxTemp;
@@ -82,14 +81,12 @@ class ReflowControl
 		void displayWarning( byte typeError );
 		void finish();
 		void waitForSelect();
-		//int sampleTemp( int remainder );
 		// Variables
 		byte stageNumber;
 		long windowStartTime;
 		long overallStartTime;
 		long overallEndTime;
 		long overallTimeLeft;
-		//int sampleIndex;
 };
 
 #endif

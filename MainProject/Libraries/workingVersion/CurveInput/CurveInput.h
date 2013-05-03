@@ -1,6 +1,9 @@
 /*
 	CurveInput.h - Library (Header): allows user to input reflow curve.
 	Michael Vogelsong
+	Virginia Chen
+	Allison Finley
+	Khanh Bui
 */
 
 #ifndef CurveInput_h

@@ -1,6 +1,9 @@
 /*
 	CurveInput.cpp - Library (Source): allows user to input reflow curve
 	Michael Vogelsong
+	Virginia Chen
+	Allison Finley
+	Khanh Bui
 */
 
 // ********** Library Dependencies **********
@@ -203,6 +206,8 @@ int CurveInput::getTimePoint( int index )
 	return times[index-1] + duration;
 }
 
+// Provides bounds on what the user can input, and calculates 
+//      a suggested time
 int CurveInput::getTimeLimits( int index, int* lowerLimit,
                                int* upperLimit )
 {
@@ -241,6 +246,8 @@ int CurveInput::getTempPoint( int index )
 	return thisTemp;
 }
 
+// Provides bounds on what the user can input, and calculates 
+//      a suggested temperature
 int CurveInput::getTempLimits( int index, int* lowerLimit,
                                int* upperLimit )
 {
@@ -275,6 +282,8 @@ int CurveInput::getTempLimits( int index, int* lowerLimit,
 	return suggestedTemp;
 }
 
+// Finds the next temperature based on the change in time and the
+//      rate (linear model)
 int CurveInput::projectTemp( int previousTime, int currentTime,
 	                         int previousTemp, float rate )
 {
@@ -284,6 +293,8 @@ int CurveInput::projectTemp( int previousTime, int currentTime,
 	return temp;
 }
 
+// Send data serially so that Matlab can pick up information for
+//      real-time plotting
 void CurveInput::sendTimesAndTemps()
 {
 	Serial.println("Times");

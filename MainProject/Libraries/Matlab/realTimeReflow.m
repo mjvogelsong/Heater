@@ -1,13 +1,20 @@
+%% realTimeReflow.m
+%% Virginia Chen
+%% Michael Vogelsong
+
 % Takes data from the Arduino to plot the user-inputted reference reflow
 % curve as well as the actual reflow curve in real time.
 
-% makes sure that arduino is closed and deleted
+% for reference:
+% http://www.mathworks.com/help/matlab/serial-port-devices.html
+
+% makes sure that previous port is closed and deleted
 fclose(arduino)
 delete(arduino)
 clear all
 clc
 
-arduino = serial('COM3') % arduino is connected to computer through COM3
+arduino = serial('COM3') % port may be different for different computers
 fopen(arduino)
 
 % waits until the user inputs a curve/selects the default curve
@@ -17,7 +24,6 @@ end
 
 inputTimes = zeros(1,5);
 inputTemps = zeros(1,5);
-
 counter = 0;
 
 % a string that says 'Time', not needed
@@ -40,7 +46,7 @@ while ( counter < 12 )
     counter=counter+1;
 end    
 
-% plots the ser inputted reference curve
+% plots the inputted reference curve
 figure(1), clf
 plot(inputTimes, inputTemps, 'r-')
 grid
@@ -48,30 +54,30 @@ xlabel('Time (s)')
 ylabel('Temperature (C)')
 title('Heating Curve')
 
-% plots the real time curve on top of the reference curve
+% sets up the real time curve on top of the reference curve
 times = 0;
 temps = 25;
 hold on
 h = plot(times, temps, 'b-', 'XDataSource', 'times', ...
     'YDataSource', 'temps');
+
+% Control parameters for real-time looping
 dataRemaining = 1;
-
-pauseNums = 0;
-pauseLimit = round(.5/.005);
 plotWait = 10;
-
 endTime=(inputTimes(5));
 
+% wait for user to start process
 while (arduino.BytesAvailable == 0)
     pause(.1);
 end
 
+% load in data off of buffer as it comes in
 while (times(end)<endTime)
         plotWait = plotWait - 1;
         data = fscanf(arduino,'%d %d');
         times = [times data(2)/1000];
         temps = [temps data(1)];
-        % only plots 1 of every 10 data points
+        % waits for 10 new data points before refreshing the plot
         if (plotWait == 0)
             refreshdata(h, 'caller');
             drawnow;
@@ -79,16 +85,5 @@ while (times(end)<endTime)
         end
 end
 
-
-% pauseLength = .005;
-% plotWait = 1;
-% iter = floor(plotWait/pauseLength);
-% for z = 1:10
-%     for k = 1:iter
-%         t = [t t(end)+pauseLength];
-%         y = [y y(end)+rand(1)-rand(1)];
-%         pause(pauseLength)
-%     end
-%   refreshdata(h,'caller') % Evaluate y in the function workspace
-% 	drawnow;
-%     end
+fprintf('Target Peak Temperature: %f C\n\n', inputTemps(5))
+fprintf('Actual Peak Temperature: %f C\n', max(temps))

@@ -3,9 +3,12 @@
 mainControl.ino
 ********************************
 Michael Vogelsong
-4/14/13
+Virginia Chen
+Allison Finley
+Khanh Bui
 
-Functions:
+Master Arduino code -- this needs to be uploaded to the Arduino
+microcontroller
 
 ********************************
 */
@@ -25,10 +28,10 @@ double currentTemp; // dynamic current temperature
 double pidOutput; // PID output
 double setPoint; // dynamic set point
 PID myPID(&currentTemp, &pidOutput, &setPoint, KP, KI, KD, DIRECT);
-int times[5];
-int temps[5];
-int smoothTimes[9];
-int smoothTemps[9];
+int times[5]; // user-defined or default
+int temps[5]; // user-defined or default
+//int smoothTimes[9];
+//int smoothTemps[9];
 byte error;
 
 // ~~~~~~~~~~~~~~~ Setup ~~~~~~~~~~~~~~~~~
@@ -43,6 +46,6 @@ void setup()
 void loop()
 {
 	error = 0;
-        cinp.main();
+	cinp.main();
 	rCont.main();
 }

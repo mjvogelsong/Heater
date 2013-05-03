@@ -9,6 +9,7 @@
 #include "Arduino.h"
 
 #define BUTTON_PIN 0
+
 // Buttons - give descriptive names to the return values
 #define RIGHT   0
 #define UP      1
@@ -16,6 +17,7 @@
 #define LEFT    3
 #define SELECT  4
 #define NONE    5
+
 // Button ADC Limits - experimentally determined
 #define V1         50
 #define V2         148
