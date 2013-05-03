@@ -29,6 +29,7 @@ int times[5];
 int temps[5];
 int smoothTimes[9];
 int smoothTemps[9];
+byte error;
 
 // ~~~~~~~~~~~~~~~ Setup ~~~~~~~~~~~~~~~~~
 void setup()
@@ -41,6 +42,7 @@ void setup()
 // ~~~~~~~~~~~~~~~ Main Loop ~~~~~~~~~~~~~~~~~
 void loop()
 {
-	cinp.main();
+	error = 0;
+        cinp.main();
 	rCont.main();
 }

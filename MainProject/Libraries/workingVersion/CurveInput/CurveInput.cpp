@@ -175,27 +175,32 @@ void CurveInput::getCurvePoints()
 int CurveInput::getTimePoint( int index )
 {
 	initLCD(&col, &row);
-	lcd.print("Enter Time ");
+	lcd.print("Duration ");
 	lcd.print(index);
 	lcd.print(" (s)");
 	lcd.setCursor(0, 1);
 	byte buttonID = NONE;
-	int lowerLimit, upperLimit;
-	times[index] = getTimeLimits(index, &lowerLimit, &upperLimit);
-	int thisTime = times[index]; // scoping current time
-	lcd.print(thisTime);
+	int lowerLimit = 1;
+	int upperLimit = 150;
+	//times[index] = getTimeLimits(index, &lowerLimit, &upperLimit);
+	int duration;
+	if ( index == 1 ) duration = 125;
+	else if ( index == 2 ) duration = 90;
+	else if ( index == 3 ) duration = 90;
+	else duration = 30;
+	lcd.print(duration);
 	col = 0; row = 1;
 	lcd.setCursor(col, row);
 	delay(SELECT_DURATION);
 	while ( buttonID != SELECT ) // any button other than SELECT
 	{
 		buttonID = btn.waitForButton();
-		thisTime = btn.actionIncDec(buttonID, TIME_TEMP_DURATION,
-		                            col, row, thisTime, 3,
+		duration = btn.actionIncDec(buttonID, TIME_TEMP_DURATION,
+		                            col, row, duration, 3,
 		                            lowerLimit, upperLimit);
 		                            // user adjusts time
 	}
-	return thisTime;
+	return times[index-1] + duration;
 }
 
 int CurveInput::getTimeLimits( int index, int* lowerLimit,

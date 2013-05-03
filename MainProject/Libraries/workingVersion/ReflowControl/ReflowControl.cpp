@@ -20,6 +20,7 @@ extern double pidOutput;
 extern double setPoint;
 extern int times[5];
 extern int temps[5];
+extern byte error;
 //extern int tempSamples[250];
 
 // ********** Required in Sketch **********
@@ -154,36 +155,67 @@ byte ReflowControl::operateStage( byte stageNumber )
 	long stageEndTime = overallStartTime + ( 1000 * (long)times[stageNumber] );
 	int  stageEndTemp = temps[stageNumber];
 	long stageTimeLeft = getTimeLeft(stageEndTime); // time remaining in stage
+	long nextEndTime;
+	int nextEndTemp;
+	if ( stageNumber < 4 )
+	{
+		nextEndTime = overallStartTime + ( 1000 * (long)times[stageNumber+1] );
+		nextEndTemp = temps[stageNumber+1];
+	}
 	float rate = getSlope(stageStartTime, stageEndTime,
 	                      stageStartTemp, stageEndTemp);
 	                      // degrees / second
 	limitPID(rate);
-	int remainder = 1000;
-	while ( stageTimeLeft > 0 ) // not done yet with this stage
+	byte done = false;
+	long timeout = APPROACH_TIME;
+	if ( stageNumber == 2 ) timeout = (APPROACH_TIME + 8000);
+	while ( (!done) && (error == 0) )
 	{
-		// update current temp, set point, and overall time remaining
-		updateInfo(rate, stageStartTime, stageStartTemp);
-		// update PID control of relay
-		updateHeater(rate, stageNumber, stageStartTime);
-		// update LCD with current temp and time remaining
-		displayInfo(toSeconds(overallTimeLeft), 3, TIME_COL, TIME_ROW);
-		displayInfo(currentTemp, 3, TEMP_COL, TEMP_ROW);
-		delay(5);
-		// take a sample point every second for statistical analysis
-		// remainder = sampleTemp(remainder);
-		// find out how much time is left in stage (ms)
-		stageTimeLeft = getTimeLeft(stageEndTime);
-		//Serial.print("Temp ");
-		Serial.print(round(currentTemp));
-		Serial.print(" ");
-		/*Serial.print(";  Set ");
-		Serial.print(setPoint);
-		Serial.print(";  Out ");
-		Serial.print(pidOutput);
-		Serial.print(";  Time ");
-		*/
-		Serial.println(getTimeElapsed(overallStartTime));
+		while ( stageTimeLeft > timeout && error == 0 )
+		{
+			// update current temp, set point, and overall time remaining
+			updateInfo(rate, stageStartTime, stageStartTemp);
+			// update PID control of relay
+			updateHeater(rate, stageNumber, stageStartTime);
+			// update LCD with current temp and time remaining
+			displayInfo(toSeconds(overallTimeLeft), 3, TIME_COL, TIME_ROW);
+			displayInfo(currentTemp, 3, TEMP_COL, TEMP_ROW);
+			delay(5);
+			// find out how much time is left in stage (ms)
+			stageTimeLeft = getTimeLeft(stageEndTime);
+			//Serial.print("Temp ");
+			Serial.print(round(currentTemp));
+			Serial.print(" ");
+			/*
+			Serial.print(";  Set ");
+			Serial.print(setPoint);
+			Serial.print(";  Out ");
+			Serial.print(pidOutput);
+			Serial.print(";  Time ");
+			*/
+			Serial.println(getTimeElapsed(overallStartTime));
+		}
+		if ( timeout == APPROACH_TIME )
+		{
+			timeout = 0;
+			if ( stageNumber < 3 )
+			{
+				rate = getSlope(stageEndTime, nextEndTime,
+							stageEndTemp, nextEndTemp);
+							// degrees / second
+				limitPID(rate);
+				lcd.setCursor(13, 1);
+				lcd.print("A");
+			}
+		}
+		else 
+		{
+			done = true;
+			lcd.setCursor(13, 1);
+			btn.clearRegion(1, 13, 1);
+		}
 	}
+	//Serial.println("Switched Stages");
 	stageNumber++; // next stage
 	return stageNumber;
 }
@@ -258,6 +290,8 @@ void ReflowControl::updateInfo( float rate, long stageStartTime,
 	Serial.print(" ");
 	Serial.println(stageStartTime);
 	*/
+	if ( currentTemp > TEMP_HIGH_LIMIT ) error = TOO_HIGH;
+	else if ( currentTemp < TEMP_LOW_LIMIT ) error = TOO_LOW;
 	updateSetPoint(rate, stageStartTime, stageStartTemp);
 	overallTimeLeft = getTimeLeft(overallEndTime);
 }
@@ -374,7 +408,14 @@ void ReflowControl::finish()
 	digitalWrite(HEATER_PIN, LOW);
 	lcd.clear();
 	lcd.home();
-	lcd.print("     DONE!");
+	if ( error == 0 ) lcd.print("     DONE!");
+	else
+	{
+		lcd.print("Slight problem");
+		lcd.setCursor(0, 1);
+		if ( error == TOO_HIGH ) lcd.print("We're Smokin'");
+		else lcd.print("Too cold!");
+	}
 	for(int count = 0; count < 5; count++)
 	{	// Blink off and on
 		lcd.noDisplay();

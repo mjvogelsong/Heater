@@ -14,14 +14,14 @@
 // Temperatures
 #define UPPER_LIM 300
 #define LOWER_LIM 0
-#define RANGE_LOW 20
-#define RANGE_HIGH 305
-#define ROOM_TEMP_ADC 27
+#define TEMP_LOW_LIMIT 0
+#define TEMP_HIGH_LIMIT 305
+#define ROOM_TEMP_ADC 32
 
 // Timing
 #define BLINK_TIME   500
 #define PREPARE_TIME 17000
-#define APPROACH_TIME 10000
+#define APPROACH_TIME 6000
 
 // Errors
 #define TOO_HIGH 1
